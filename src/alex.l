@@ -7,14 +7,14 @@ void visualizar(int opcion, char* texto);
 
 /* Subseccion de definiciones */
 %option yylineno
-comentario [//.]
 delimitador [ \t]+
 letra [a-zA-Z]
 digito [0-9]
+comentario "//".*
 %%
-{delimitador}     {ECHO;}
-{comentario}				{visualizar(1,"Comentario");}
+{delimitador}     			{ECHO;}
 "\n"                        {visualizar(0,"");}
+{comentario}				{visualizar(1,"Comentario");}
 if                          {visualizar(1,"P. Reservada: ");}
 for                         {visualizar(1,"P. Reservada: ");}
 "+"                         {visualizar(1,"Op. suma: ");}

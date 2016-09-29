@@ -8,6 +8,7 @@ void visualizar(int opcion, char* texto);
 /* Subseccion de definiciones */
 %option yylineno
 delimitador [ \t]+
+tipo	"int"|"bool"
 letra [a-zA-Z]
 digito [0-9]
 comentario "//".*
@@ -17,6 +18,9 @@ comentario "//".*
 {comentario}				{visualizar(1,"Comentario");}
 if                          {visualizar(1,"P. Reservada: ");}
 for                         {visualizar(1,"P. Reservada: ");}
+{tipo}						{visualizar(1,"Tipo: ");}	
+read 						{visualizar(1,"P. Reservada: ");}
+print                 		{visualizar(1,"P. Reservada: ");}
 "+"                         {visualizar(1,"Op. suma: ");}
 "*"                         {visualizar(1,"Op. mult: ");}
 {digito}+                   {visualizar(1,"Cte.: ");}

@@ -1,0 +1,41 @@
+  1- Comentario // Ejemplo sencillo del uso de operadores aritmeticos
+  2- Nueva Linea
+  2- Caracter no Valido: {
+   2- Tipo:  int
+   2- Identificador:  a
+  2- Caracter no Valido: ;
+  3- Nueva Linea
+  4- Nueva Linea
+    4- P. Reservada:  read
+  4- Caracter no Valido: (
+  4- Identificador:  a
+  4- Caracter no Valido: )
+  4- Caracter no Valido: ;
+  5- Nueva Linea
+    5- Identificador:  a
+   5- Caracter no Valido: =
+   5- Caracter no Valido: (
+  5- Caracter no Valido: (
+  5- Caracter no Valido: (
+  5- Identificador:  a
+   5- Op. suma:  +
+   5- Identificador:  a
+  5- Caracter no Valido: )
+   5- Op. mult:  *
+   5- Cte.:  2
+  5- Caracter no Valido: )
+   5- Caracter no Valido: /
+   5- Cte.:  2
+   5- Caracter no Valido: )
+   5- Caracter no Valido: -
+   5- Identificador:  a
+   5- Caracter no Valido: ;
+  6- Nueva Linea
+    6- P. Reservada:  print
+  6- Caracter no Valido: (
+  6- Identificador:  a
+  6- Caracter no Valido: )
+  6- Caracter no Valido: ;
+  7- Nueva Linea
+  7- Caracter no Valido: }
+  8- Nueva Linea

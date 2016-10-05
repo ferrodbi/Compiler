@@ -1,6 +1,6 @@
-#line 2 "alex.c"
+#line 2 "analyzer.c"
 
-#line 4 "alex.c"
+#line 4 "analyzer.c"
 
 #define  YY_INT_ALIGNED short int
 
@@ -514,7 +514,7 @@ char *yytext;
 extern FILE *yyin;
 void visualizar(int opcion, char* texto);
 /* Subseccion de definiciones */
-#line 518 "alex.c"
+#line 518 "analyzer.c"
 
 #define INITIAL 0
 
@@ -734,7 +734,7 @@ YY_DECL
 	{
 #line 15 "alex.l"
 
-#line 738 "alex.c"
+#line 738 "analyzer.c"
 
 	while ( /*CONSTCOND*/1 )		/* loops until end-of-file is reached */
 		{
@@ -872,7 +872,7 @@ YY_RULE_SETUP
 #line 29 "alex.l"
 ECHO;
 	YY_BREAK
-#line 876 "alex.c"
+#line 876 "analyzer.c"
 case YY_STATE_EOF(INITIAL):
 	yyterminate();
 

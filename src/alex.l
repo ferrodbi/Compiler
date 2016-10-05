@@ -16,6 +16,14 @@ comentario "//".*
 {delimitador}     			{ECHO;}
 "\n"                        {visualizar(0,"");}
 {comentario}				{visualizar(1,"Comentario");}
+"{"							{return ALLA_;}
+"("							{return APAR_;}
+"["							{return ACOR_;}
+"}"							{return CLLA_;}
+")"							{return CPAR_;}
+"]"							{return CCOR_;}
+
+
 if                          {visualizar(1,"P. Reservada: ");}
 for                         {visualizar(1,"P. Reservada: ");}
 {tipo}						{visualizar(1,"Tipo: ");}	

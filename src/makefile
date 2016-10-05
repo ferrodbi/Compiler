@@ -5,3 +5,4 @@ all:
 	
 clean: 
 	$(RM) analyzer analyzer.c
+	

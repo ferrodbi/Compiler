@@ -2,14 +2,14 @@
 #include <stdio.h>
 extern int yylineno;
 %}
-%token ID_ CTE_ OPSUMA_ OPMULT_ 
+%token ID_ CTE_ OPSUMA_ OPMULT_ OPINC_ OPUNA_ OPLOG_ OPIGU_ OPREL_
 %token ALLA_ CLLA_ APAR_ CPAR_ ACOR_ CCOR_
-%token PCOMA_ PUNTO_ IGUAL_
+%token PCOMA_ PUNTO_
 %token TRUE_ FALSE_
 %token BOOL_ INT_ STRUCT_
 %token FOR_ IF_ ELSE_
 %token READ_ PRINT_
-
+%error-verbose
 %%
 
 programa: ALLA_ secuenciaSentencias CLLA_
@@ -32,50 +32,50 @@ listaCampos: tipoSimple ID_ PCOMA_
 			;
 instruccion: ALLA_ listaInstrucciones CLLA_
 			| instruccionAsignacion
-			| instruccionEntradaSalID_a
+			| instruccionEntradaSalid_a
 			| instruccionSeleccion
 			| instruccionIteracion
 			;
 listaInstrucciones: 
 			| listaInstrucciones instruccion
 			;
-instruccionAsignacion: ID_ IGUAL_ expresion PCOMA_
-			| ID_ ACOR_ expresion CCOR_ IGUAL_ expresion PCOMA_
-			| ID_ PUNTO_ ID_ IGUAL_ expresion
+instruccionAsignacion: ID_ OPIGU_ expresion PCOMA_
+			| ID_ ACOR_ expresion CCOR_ OPIGU_ expresion PCOMA_
+			| ID_ PUNTO_ ID_ OPIGU_ expresion
 			;
-instruccionEntradaSalID_a: READ_ APAR_ ID_ CPAR_ PCOMA_
+instruccionEntradaSalid_a: READ_ APAR_ ID_ CPAR_ PCOMA_
 			| PRINT_ APAR_ ID_ CPAR_ PCOMA_
 			;
 instruccionSeleccion: IF_ APAR_ expresion CPAR_ instruccion ELSE_ instruccion;
 instruccionIteracion: FOR_ APAR_ expresionOpcional PCOMA_ expresion PCOMA_ expresionOpcional CPAR_ instruccion ;
-expresionOpcional: expresionOpcional
-			| ID_ IGUAL_ expresion
+expresionOpcional: expresion
+			| ID_ OPIGU_ expresion
 			|
 			;
 expresion: expresionIgualdad
-			| expresion operadorLogico expresionIgualdad
+			| expresion OPLOG_ expresionIgualdad
 			;
 expresionIgualdad: expresionRelacional
-			| expresionIgualdad operadorIgualdad expresionRelacional
+			| expresionIgualdad OPIGU_ expresionRelacional
 			;
 expresionRelacional: expresionAditiva
-			| expresionRelacional operadorRelacional expresionAditiva
+			| expresionRelacional OPREL_ expresionAditiva
 			;
 expresionAditiva: expresionMultiplicativa
-			| expresionAditiva operadorAditivo expresionMultiplicativa
+			| expresionAditiva OPSUMA_ expresionMultiplicativa
 			;
 expresionMultiplicativa: expresionUnaria
-			| expresionMultiplicativa operadorMultiplicativo expresionUnaria
+			| expresionMultiplicativa OPMULT_ expresionUnaria
 			;
 expresionUnaria: expresionSufija
-			| operadorUnario expresionUnaria
-			| operadorIncremento ID_
+			| OPUNA_ expresionUnaria
+			| OPINC_ ID_
 			;
 expresionSufija: ID_
 			| ID_ ACOR_ expresion CCOR_
 			| ID_ PUNTO_ ID_
 			| APAR_ expresion CPAR_
-			| ID_ operadorIncremento
+			| ID_ OPINC_
 			| CTE_
 			| TRUE_
 			| FALSE_

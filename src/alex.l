@@ -1,6 +1,7 @@
 /* Subseccion preambulo C */
 %{
 #include <stdio.h>
+#include "asin.h"
 extern FILE *yyin;
 void visualizar(int opcion, char* texto);
 %}
@@ -23,14 +24,27 @@ read 						{visualizar(1,"P. Reservada: ");}
 print                 		{visualizar(1,"P. Reservada: ");}
 
 
-"+"                         {return (OPSUMA_);}
+"+"                         {return(OPSUMA_);}
+"-"                         {return (OPSUMA_);}
+
 "*"                         {return (OPMULT_);}
+"/"                         {return (OPMULT_);}
+
+"++"                        {return (OPINC_);}
+"--"                        {return (OPINC_);}
+"!"                         {return (OPUNA_);}
+
 "&&"                        {return (OPLOG_);}
+"||"                        {return (OPLOG_);}
+
 "=="                        {return (OPIGU_);}
 "!="                        {return (OPIGU_);}
+
 ">"                         {return (OPREL_);}
 "<"                         {return (OPREL_);}
 "<="                        {return (OPREL_);}
+">="                        {return (OPREL_);}
+
 "{"							{return (ALLA_);}
 "("							{return (APAR_);}
 "["							{return (ACOR_);}

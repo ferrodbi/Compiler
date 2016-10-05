@@ -1,0 +1,4 @@
+bison -d -o asin.c asin.y
+flex -0 alex.c alex.l
+gcc -o compilado rwalex.c asin.c -lfl
+PARA PARC MAS POR CTE

@@ -7,10 +7,62 @@ extern int yylineno;
 %%
 
 programa: { secuenciaSentencias };
-secuenciaSentencias: sentencia|secuenciaSentencias sentencia;
+secuenciaSentencias: sentencia
+			| secuenciaSentencias sentencia;
 sentencia: declaracion|instruccion;
-declaracion: tipoSimple id PUNTOCOMA_
-			| tipoSimple id [cte]
+declaracion: tipoSimple id PCOMA_
+			| tipoSimple id ACOR_ cte CCOR_
+			| struct ALLA_ listaCampos CLLA_ PCOMA_ id
+			;
+tipoSimple: int
+			| bool
+			;
+listaCampos: tipoSimple id PCOMA_
+			| listaCampos tipoSimple id PCOMA_
+			;
+instruccion: ALLA_ listaInstrucciones CLLA_
+			| instruccionAsignacion
+			| instruccionEntradaSalida
+			| instruccionSeleccion
+			| instruccionIteracion
+			;
+listaInstrucciones: 
+			| listraInstrucciones instruccion
+			;
+instruccionAsignacion: id IGUAL_ expresion PCOMA_
+			| id ACOR_ expresion CCOR_ IGUAL_ expresion PCOMA_
+			| id PUNTO_ id IGUAL_ expresion
+			;
+instruccionEntradaSalida: read APAR_ id CPAR_ PCOMA_
+			| print APAR_ id CPAR_ PCOMA_
+			;
+instruccionSeleccion: if APAR_ expresion CPAR_ instruccion else instruccion;
+instruccionIteracion: for APAR_ expresionOpcional PCOMA_ expresion PCOMA_ expresionOpcional CPAR_ instruccion ;
+expresionOpcional: expresionOpcional
+			| id IGUAL_ expresion
+			|
+			;
+expresion: expresionIgualdad
+			| expresion operadorLogico expresionIgualdad
+			;
+expresionIgualdad: expresionRelacional
+			| expresionIgualdad operadorIgualdad expresionRelacional
+			;
+expresionRelacional: expresionAditiva
+			| expresionRelacional operadorRelacional expresionAditiva
+			;
+expresionAditiva: expresionMultiplicativa
+			| expresionAditiva operadorAditivo expresionMultiplicativa
+			;
+expresionMultiplicativa: expresionUnaria
+			| expresionMultiplicativa operadorMultiplicativo expresionUnaria
+			;
+expresionUnaria: expresionSufija
+			| operadorUnario expresionUnaria
+			| operadorIncremento id
+			;
+expresionSufija:
+
 
 
 expresion: expresion OPMAS_ termino | termino;

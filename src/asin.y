@@ -2,44 +2,54 @@
 #include <stdio.h>
 extern int yylineno;
 %}
-%token ID_ CTE_ OPMAS_ OPMULT_
+%token ID_ CTE_ OPSUMA_ OPMULT_ 
+%token ALLA_ CLLA_ APAR_ CPAR_ ACOR_ CCOR_
+%token PCOMA_ PUNTO_ IGUAL_
+%token TRUE_ FALSE_
+%token BOOL_ INT_ STRUCT_
+%token FOR_ IF_ ELSE_
+%token READ_ PRINT_
 
 %%
 
-programa: { secuenciaSentencias };
+programa: ALLA_ secuenciaSentencias CLLA_
+			;
 secuenciaSentencias: sentencia
-			| secuenciaSentencias sentencia;
-sentencia: declaracion|instruccion;
-declaracion: tipoSimple id PCOMA_
-			| tipoSimple id ACOR_ cte CCOR_
-			| struct ALLA_ listaCampos CLLA_ PCOMA_ id
+			| secuenciaSentencias sentencia
 			;
-tipoSimple: int
-			| bool
+sentencia: declaracion
+			| instruccion
 			;
-listaCampos: tipoSimple id PCOMA_
-			| listaCampos tipoSimple id PCOMA_
+declaracion: tipoSimple ID_ PCOMA_
+			| tipoSimple ID_ ACOR_ CTE_ CCOR_
+			| STRUCT_ ALLA_ listaCampos CLLA_ PCOMA_ ID_
+			;
+tipoSimple: INT_
+			| BOOL_
+			;
+listaCampos: tipoSimple ID_ PCOMA_
+			| listaCampos tipoSimple ID_ PCOMA_
 			;
 instruccion: ALLA_ listaInstrucciones CLLA_
 			| instruccionAsignacion
-			| instruccionEntradaSalida
+			| instruccionEntradaSalID_a
 			| instruccionSeleccion
 			| instruccionIteracion
 			;
 listaInstrucciones: 
-			| listraInstrucciones instruccion
+			| listaInstrucciones instruccion
 			;
-instruccionAsignacion: id IGUAL_ expresion PCOMA_
-			| id ACOR_ expresion CCOR_ IGUAL_ expresion PCOMA_
-			| id PUNTO_ id IGUAL_ expresion
+instruccionAsignacion: ID_ IGUAL_ expresion PCOMA_
+			| ID_ ACOR_ expresion CCOR_ IGUAL_ expresion PCOMA_
+			| ID_ PUNTO_ ID_ IGUAL_ expresion
 			;
-instruccionEntradaSalida: read APAR_ id CPAR_ PCOMA_
-			| print APAR_ id CPAR_ PCOMA_
+instruccionEntradaSalID_a: READ_ APAR_ ID_ CPAR_ PCOMA_
+			| PRINT_ APAR_ ID_ CPAR_ PCOMA_
 			;
-instruccionSeleccion: if APAR_ expresion CPAR_ instruccion else instruccion;
-instruccionIteracion: for APAR_ expresionOpcional PCOMA_ expresion PCOMA_ expresionOpcional CPAR_ instruccion ;
+instruccionSeleccion: IF_ APAR_ expresion CPAR_ instruccion ELSE_ instruccion;
+instruccionIteracion: FOR_ APAR_ expresionOpcional PCOMA_ expresion PCOMA_ expresionOpcional CPAR_ instruccion ;
 expresionOpcional: expresionOpcional
-			| id IGUAL_ expresion
+			| ID_ IGUAL_ expresion
 			|
 			;
 expresion: expresionIgualdad
@@ -59,22 +69,47 @@ expresionMultiplicativa: expresionUnaria
 			;
 expresionUnaria: expresionSufija
 			| operadorUnario expresionUnaria
-			| operadorIncremento id
+			| operadorIncremento ID_
 			;
-expresionSufija:
-
-
-
-expresion: expresion OPMAS_ termino | termino;
-termino: termino OPMULT_ factor | factor;
-factor: CTE_ | ID_;
-
-
-
-
+expresionSufija: ID_
+			| ID_ ACOR_ expresion CCOR_
+			| ID_ PUNTO_ ID_
+			| APAR_ expresion CPAR_
+			| ID_ operadorIncremento
+			| CTE_
+			| TRUE_
+			| FALSE_
+			;
 %%
 
 /* Llamada por yyparse ante un error */
 yyerror (char *s) {
 	printf ("Linea %d: %s\n", yylineno, s);
 }
+
+/*
+operadorLogico: &&
+			| ||
+			;
+operadorIgualdad: ==
+			| !=
+			;
+operadorRelacional: >
+			| <
+			| >=
+			| <=
+			;
+operadorAditivo: + 
+			| -
+			;
+operadorMultiplicativo: *
+			| /
+			;
+operadorUnario: +
+			| -
+			|  !
+			;
+operadorIncremento: ++
+			| --
+			;
+*/

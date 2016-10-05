@@ -16,23 +16,29 @@ comentario "//".*
 {delimitador}     			{ECHO;}
 "\n"                        {visualizar(0,"");}
 {comentario}				{visualizar(1,"Comentario");}
-"{"							{return ALLA_;}
-"("							{return APAR_;}
-"["							{return ACOR_;}
-"}"							{return CLLA_;}
-")"							{return CPAR_;}
-"]"							{return CCOR_;}
-
-
 if                          {visualizar(1,"P. Reservada: ");}
 for                         {visualizar(1,"P. Reservada: ");}
 {tipo}						{visualizar(1,"Tipo: ");}	
 read 						{visualizar(1,"P. Reservada: ");}
 print                 		{visualizar(1,"P. Reservada: ");}
-"+"                         {visualizar(1,"Op. suma: ");}
-"*"                         {visualizar(1,"Op. mult: ");}
-{digito}+                   {visualizar(1,"Cte.: ");}
-{letra}({letra}|{digito})*  {visualizar(1,"Identificador: ");}
+
+
+"+"                         {return (OPSUMA_);}
+"*"                         {return (OPMULT_);}
+"&&"                        {return (OPLOG_);}
+"=="                        {return (OPIGU_);}
+"!="                        {return (OPIGU_);}
+">"                         {return (OPREL_);}
+"<"                         {return (OPREL_);}
+"<="                        {return (OPREL_);}
+"{"							{return (ALLA_);}
+"("							{return (APAR_);}
+"["							{return (ACOR_);}
+"}"							{return (CLLA_);}
+")"							{return (CPAR_);}
+"]"							{return (CCOR_);}
+{digito}+                   {return (CTE_);}
+{letra}({letra}|{digito})*  {return (ID_);}
 .                           {visualizar(1,"Caracter no Valido:");}
 %%
 void visualizar(int opcion, char* texto)

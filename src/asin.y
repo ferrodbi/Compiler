@@ -2,7 +2,7 @@
 #include <stdio.h>
 #include "header.h"
 %}
-%token ID_ CTE_ OPSUMA_ OPMULT_ OPINC_ OPUNA_ OPLOG_ OPIGU_ OPREL_
+%token ID_ CTE_ OPSUMA_ OPMULT_ OPINC_ OPUNA_ OPLOG_ OPIGU_ OPREL_ IGU_
 %token ALLA_ CLLA_ APAR_ CPAR_ ACOR_ CCOR_
 %token PCOMA_ PUNTO_
 %token TRUE_ FALSE_
@@ -21,8 +21,8 @@ sentencia: declaracion
 			| instruccion
 			;
 declaracion: tipoSimple ID_ PCOMA_
-			| tipoSimple ID_ ACOR_ CTE_ CCOR_
-			| STRUCT_ ALLA_ listaCampos CLLA_ PCOMA_ ID_
+			| tipoSimple ID_ ACOR_ CTE_ CCOR_  PCOMA_
+			| STRUCT_ ALLA_ listaCampos CLLA_  ID_ PCOMA_
 			;
 tipoSimple: INT_
 			| BOOL_
@@ -32,24 +32,26 @@ listaCampos: tipoSimple ID_ PCOMA_
 			;
 instruccion: ALLA_ listaInstrucciones CLLA_
 			| instruccionAsignacion
-			| instruccionEntradaSalid_a
+			| instruccionEntradaSalida
 			| instruccionSeleccion
 			| instruccionIteracion
 			;
 listaInstrucciones: 
 			| listaInstrucciones instruccion
 			;
-instruccionAsignacion: ID_ OPIGU_ expresion PCOMA_
-			| ID_ ACOR_ expresion CCOR_ OPIGU_ expresion PCOMA_
-			| ID_ PUNTO_ ID_ OPIGU_ expresion
+instruccionAsignacion: ID_ IGU_ expresion PCOMA_
+			| ID_ ACOR_ expresion CCOR_ IGU_ expresion PCOMA_
+			| ID_ PUNTO_ ID_ IGU_ expresion PCOMA_
 			;
-instruccionEntradaSalid_a: READ_ APAR_ ID_ CPAR_ PCOMA_
-			| PRINT_ APAR_ ID_ CPAR_ PCOMA_
+instruccionEntradaSalida: READ_ APAR_ ID_ CPAR_ PCOMA_
+			| PRINT_ APAR_ expresion CPAR_ PCOMA_
 			;
-instruccionSeleccion: IF_ APAR_ expresion CPAR_ instruccion ELSE_ instruccion;
-instruccionIteracion: FOR_ APAR_ expresionOpcional PCOMA_ expresion PCOMA_ expresionOpcional CPAR_ instruccion ;
+instruccionSeleccion: IF_ APAR_ expresion CPAR_ instruccion ELSE_ instruccion
+			;
+instruccionIteracion: FOR_ APAR_ expresionOpcional PCOMA_ expresion PCOMA_ expresionOpcional CPAR_ instruccion 
+			;
 expresionOpcional: expresion
-			| ID_ OPIGU_ expresion
+			| ID_ IGU_ expresion
 			|
 			;
 expresion: expresionIgualdad
@@ -83,10 +85,11 @@ expresionSufija: ID_
 %%
 
 /* Llamada por yyparse ante un error */
+/*
 yyerror (char *s) {
 	printf ("Linea %d: %s\n", yylineno, s);
 }
-
+*/
 /*
 operadorLogico: &&
 			| ||

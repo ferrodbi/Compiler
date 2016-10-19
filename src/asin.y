@@ -1,6 +1,6 @@
 %{
 #include <stdio.h>
-extern int yylineno;
+#include "header.h"
 %}
 %token ID_ CTE_ OPSUMA_ OPMULT_ OPINC_ OPUNA_ OPLOG_ OPIGU_ OPREL_
 %token ALLA_ CLLA_ APAR_ CPAR_ ACOR_ CCOR_

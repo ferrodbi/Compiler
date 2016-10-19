@@ -1,28 +1,30 @@
 /* Subseccion preambulo C */
 %{
 #include <stdio.h>
-#include "asin.h"
-extern FILE *yyin;
+#include "header.h"
+	#include "asin.h"
+
 void visualizar(int opcion, char* texto);
 %}
 
 /* Subseccion de definiciones */
 %option yylineno
 delimitador [ \t]+
-tipo	"int"|"bool"
 letra [a-zA-Z]
 digito [0-9]
-comentario "//".*
+/*comentario "//".\n* */
+comentario "//"[^\n]*"\n"
 %%
 {delimitador}     			{ECHO;}
 "\n"                        {visualizar(0,"");}
 {comentario}				{visualizar(1,"Comentario");}
-if                          {visualizar(1,"P. Reservada: ");}
-for                         {visualizar(1,"P. Reservada: ");}
-{tipo}						{visualizar(1,"Tipo: ");}	
-read 						{visualizar(1,"P. Reservada: ");}
-print                 		{visualizar(1,"P. Reservada: ");}
+if                          {ECHO; return (IF_);}
+for                         {ECHO; return (FOR_);}
+read 						{ECHO; return (READ_);}
+print                 		{ECHO; return (PRINT_);}
 
+"int"						{return (INT_);}
+"bool"						{return (BOOL_);}
 
 "+"                         {return(OPSUMA_);}
 "-"                         {return (OPSUMA_);}

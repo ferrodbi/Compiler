@@ -2,7 +2,10 @@
 #include <stdio.h>
 #include "header.h"
 %}
-%token ID_ CTE_ OPSUMA_ OPMULT_ OPINC_ OPUNA_ OPLOG_ OPIGU_ OPREL_ IGU_
+%token ID_ CTE_  
+%token MAS_ MENOS_ MASMAS_ MENOSMENOS_ PROD_ DIV_ 
+%token MAY_ MENOR_ MAYIGU_ MENIGU_ IGU_ IGUIGU_ NOTIGU_ EXCL_ 
+%token ANDAND_ OROR_
 %token ALLA_ CLLA_ APAR_ CPAR_ ACOR_ CCOR_
 %token PCOMA_ PUNTO_
 %token TRUE_ FALSE_
@@ -55,64 +58,55 @@ expresionOpcional: expresion
 			|
 			;
 expresion: expresionIgualdad
-			| expresion OPLOG_ expresionIgualdad
+			| expresion operadorLogico expresionIgualdad
 			;
 expresionIgualdad: expresionRelacional
-			| expresionIgualdad OPIGU_ expresionRelacional
+			| expresionIgualdad operadorIgualdad expresionRelacional
 			;
 expresionRelacional: expresionAditiva
-			| expresionRelacional OPREL_ expresionAditiva
+			| expresionRelacional operadorRelacional expresionAditiva
 			;
 expresionAditiva: expresionMultiplicativa
-			| expresionAditiva OPSUMA_ expresionMultiplicativa
+			| expresionAditiva operadorAditivo expresionMultiplicativa
 			;
 expresionMultiplicativa: expresionUnaria
-			| expresionMultiplicativa OPMULT_ expresionUnaria
+			| expresionMultiplicativa operadorMultiplicativo expresionUnaria
 			;
 expresionUnaria: expresionSufija
-			| OPUNA_ expresionUnaria
-			| OPINC_ ID_
+			| operadorUnario expresionUnaria
+			| operadorIncremento ID_
 			;
 expresionSufija: ID_
 			| ID_ ACOR_ expresion CCOR_
 			| ID_ PUNTO_ ID_
 			| APAR_ expresion CPAR_
-			| ID_ OPINC_
+			| ID_ operadorIncremento
 			| CTE_
 			| TRUE_
 			| FALSE_
 			;
+operadorLogico: ANDAND_
+			| OROR_
+			;
+operadorIgualdad: IGUIGU_
+			| NOTIGU_
+			;
+operadorRelacional: MAY_ 
+			| MENOR_
+			| MAYIGU_
+			| MENIGU_
+			;
+operadorAditivo: MAS_
+			| MENOS_
+			;
+operadorMultiplicativo: PROD_
+			| DIV_
+			;
+operadorUnario: MAS_
+			| MENOS_
+			| EXCL_
+			;
+operadorIncremento: MASMAS_
+			| MENOSMENOS_
+			;
 %%
-
-/* Llamada por yyparse ante un error */
-/*
-yyerror (char *s) {
-	printf ("Linea %d: %s\n", yylineno, s);
-}
-*/
-/*
-operadorLogico: &&
-			| ||
-			;
-operadorIgualdad: ==
-			| !=
-			;
-operadorRelacional: >
-			| <
-			| >=
-			| <=
-			;
-operadorAditivo: + 
-			| -
-			;
-operadorMultiplicativo: *
-			| /
-			;
-operadorUnario: +
-			| -
-			|  !
-			;
-operadorIncremento: ++
-			| --
-			;
-*/

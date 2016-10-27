@@ -15,6 +15,5 @@ extern char *yytext;
 /********************* Variables externas definidas en el Programa Principal */
 extern int verbosidad;              /* Flag para saber si se desea una traza */
 extern int numErrores;              /* Contador del numero de errores        */
-
 #endif  /* _HEADER_H */
 /*****************************************************************************/

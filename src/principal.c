@@ -1,10 +1,12 @@
 /*****************************************************************************/
-/*  Ejemplo de un posible programa principal y tratamiento de errores.       */
+/*  Programa principal y tratamiento de errores para MenosC.17               */
+/*                       Jose Miguel Benedi, 2016-2017 <jbenedi@dsic.upv.es> */
 /*****************************************************************************/
 #include <stdio.h>
 #include <string.h>
 #include "header.h"
 
+int verTDS=FALSE;                   /* Flag para saber si mostrar la TDS     */
 int verbosidad=FALSE;               /* Flag para saber si se desea una traza */
 int numErrores=0;                   /* Contador del numero de errores        */
 /*****************************************************************************/
@@ -21,6 +23,7 @@ int main (int argc, char **argv)
 
   for (i=0; i<argc; ++i) { 
     if (strcmp(argv[i], "-v")==0) { verbosidad = TRUE; n++; }
+    else if (strcmp(argv[i], "-t")==0) { verTDS = TRUE; n++; }
   }
   --argc; n++;
   if (argc == n) {
@@ -33,6 +36,6 @@ int main (int argc, char **argv)
         fprintf(stdout,"\nNumero de errores:      %d\n", numErrores);
     }   
   }
-  else fprintf (stderr, "Uso: cmc [-v] fichero\n");
+  else fprintf (stderr, "Uso: cmc [-v] [-t] fichero\n");
 } 
 /*****************************************************************************/

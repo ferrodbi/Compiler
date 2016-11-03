@@ -1,5 +1,6 @@
 %{
 #include <stdio.h>
+#include <libtds.h>
 #include "header.h"
 %}
 %token ID_ CTE_  
@@ -24,14 +25,37 @@ sentencia: declaracion
 			| instruccion
 			;
 declaracion: tipoSimple ID_ PCOMA_
+			{if(!insertarTDS($2,$1,dvar,-1){
+				yyerror("Identificador repetido");
+				}
+			}
 			| tipoSimple ID_ ACOR_ CTE_ CCOR_  PCOMA_
+			{ int numelem=$4; int refe;
+				if($4 <=0) {
+					yyerror("Talla inapropiada del array");
+					numelem=0;
+				}
+				refe = insertaTDArray($1,numelem);
+				if(!insertarTDS($2,T_ARRAY,dvar,refe))
+					yyerror("Identificador repetido");
+				else dvar += numelem * TALLA_TIPO_SIMPLE; /////////VERY IMPORTANT
+			}
 			| STRUCT_ ALLA_ listaCampos CLLA_  ID_ PCOMA_
+			{
+			
+			}
 			;
 tipoSimple: INT_
+			{$$ = T_ENTERO;}
 			| BOOL_
+			{$$ = T_LOGICO;}
 			;
 listaCampos: tipoSimple ID_ PCOMA_
+			{ insertarCampo($$,$2,$1,dvar);
+			}
 			| listaCampos tipoSimple ID_ PCOMA_
+			{ insertarCampo($$,$3,$2,dvar);
+			}
 			;
 instruccion: ALLA_ listaInstrucciones CLLA_
 			| instruccionAsignacion
@@ -43,8 +67,20 @@ listaInstrucciones:
 			| listaInstrucciones instruccion
 			;
 instruccionAsignacion: ID_ IGU_ expresion PCOMA_
+						{SIMB sim = obtenerTDS($1);
+						if (sim.tipo == T_ERROR) yyerror("Objeto no declarado");
+						else if(! ((sim.tipo == $3.tipo == T_ENTERO) ||
+					   				(sim.tipo == $3.tipo == T_LOGICO)))
+						yyerror("Error de tipos en la instrucion de asginacion");
+			}
 			| ID_ ACOR_ expresion CCOR_ IGU_ expresion PCOMA_
+			{
+
+			}
 			| ID_ PUNTO_ ID_ IGU_ expresion PCOMA_
+			{
+
+			}
 			;
 instruccionEntradaSalida: READ_ APAR_ ID_ CPAR_ PCOMA_
 			| PRINT_ APAR_ expresion CPAR_ PCOMA_

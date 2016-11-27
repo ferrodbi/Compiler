@@ -459,13 +459,13 @@ static const yytype_uint8 yytranslate[] =
   /* YYRLINE[YYN] -- Source line where rule number YYN was defined.  */
 static const yytype_uint8 yyrline[] =
 {
-       0,    19,    19,    21,    22,    24,    25,    27,    28,    39,
-      41,    42,    44,    45,    47,    48,    49,    50,    51,    53,
-      54,    56,    64,    65,    67,    68,    70,    72,    74,    75,
-      76,    78,    79,    81,    82,    84,    85,    87,    88,    90,
-      91,    93,    94,    95,    97,    98,    99,   100,   101,   102,
-     103,   104,   106,   107,   109,   110,   112,   113,   114,   115,
-     117,   118,   120,   121,   123,   124,   125,   127,   128
+       0,    19,    19,    21,    22,    24,    25,    27,    34,    46,
+      52,    56,    61,    69,    78,    79,    80,    81,    82,    84,
+      85,    87,    93,    97,   102,   103,   105,   107,   109,   110,
+     111,   113,   114,   116,   117,   119,   120,   122,   123,   125,
+     126,   128,   129,   130,   132,   133,   134,   135,   136,   137,
+     138,   139,   141,   142,   144,   145,   147,   148,   149,   150,
+     152,   153,   155,   156,   158,   159,   160,   162,   163
 };
 #endif
 
@@ -1333,35 +1333,109 @@ yyreduce:
   YY_REDUCE_PRINT (yyn);
   switch (yyn)
     {
-        case 8:
-#line 29 "./src/asin.y" /* yacc.c:1646  */
-    { int numelem=(yyvsp[-2]); int refe;
+        case 7:
+#line 28 "./src/asin.y" /* yacc.c:1646  */
+    {
+				if(!insertarTDS((yyvsp[-1]),(yyvsp[-2]),dvar,-1)){
+					yyerror("Identificador repetido");
+					}
+				else dvar += TALLA_TIPO_SIMPLE;
+			}
+#line 1345 "asin.c" /* yacc.c:1646  */
+    break;
+
+  case 8:
+#line 35 "./src/asin.y" /* yacc.c:1646  */
+    {	
+				int numelem=(yyvsp[-2]); int refe;
 				if((yyvsp[-2]) <=0) {
 					yyerror("Talla inapropiada del array");
 					numelem=0;
 				}
 				refe = insertaTDArray((yyvsp[-5]),numelem);
 				if(!insertarTDS((yyvsp[-4]),T_ARRAY,dvar,refe))
-					yyerror("Identificador repetido");
-				else dvar += numelem * TALLA_TIPO_SIMPLE;
-			}
-#line 1349 "asin.c" /* yacc.c:1646  */
-    break;
-
-  case 21:
-#line 57 "./src/asin.y" /* yacc.c:1646  */
-    {SIMB sim = obtenerTDS((yyvsp[-3]));
-			if (sim.tipo == T_ERROR) yyerror("Objeto no declarado");
-			else if(! ((sim.tipo == (yyvsp[-1]).tipo == T_ENTERO) ||
-					   (sim.tipo == (yyvsp[-1]).tipo == T_LOGICO)))
-			yyerror("Error de tipos en la instrucion de asginacion");
-
+				yyerror("Identificador repetido");
+				else dvar += numelem * TALLA_TIPO_SIMPLE; 
 			}
 #line 1361 "asin.c" /* yacc.c:1646  */
     break;
 
+  case 9:
+#line 47 "./src/asin.y" /* yacc.c:1646  */
+    {
+				if(!insertarTDS((yyvsp[-1]),(yyvsp[-2])))...
+				
+			}
+#line 1370 "asin.c" /* yacc.c:1646  */
+    break;
 
-#line 1365 "asin.c" /* yacc.c:1646  */
+  case 10:
+#line 53 "./src/asin.y" /* yacc.c:1646  */
+    {
+				(yyval) = T_ENTERO;
+			}
+#line 1378 "asin.c" /* yacc.c:1646  */
+    break;
+
+  case 11:
+#line 57 "./src/asin.y" /* yacc.c:1646  */
+    {
+				(yyval) = T_LOGICO;
+			}
+#line 1386 "asin.c" /* yacc.c:1646  */
+    break;
+
+  case 12:
+#line 62 "./src/asin.y" /* yacc.c:1646  */
+    {
+				int ref = insertarCampo(-1,(yyvsp[-1]),(yyvsp[-2]),dvar);
+				if(!ref){
+					yyerror("Nombre repetido en el registro");
+					}
+				else dvar += TALLA_TIPO_SIMPLE;
+			}
+#line 1398 "asin.c" /* yacc.c:1646  */
+    break;
+
+  case 13:
+#line 70 "./src/asin.y" /* yacc.c:1646  */
+    {
+				if(!insertarCampo((yyval),(yyvsp[-1]),(yyvsp[-2]),dvar){
+					yyerror("Nombre repetido en el registro");
+				}
+				else dvar += TALLA_TIPO_SIMPLE;
+			}
+#line 1409 "asin.c" /* yacc.c:1646  */
+    break;
+
+  case 21:
+#line 88 "./src/asin.y" /* yacc.c:1646  */
+    {	SIMB sim = obtenerTDS((yyvsp[-3]));
+				if (sim.tipo == T_ERROR) yyerror("Objeto no declarado");
+				else if(! ((sim.tipo == (yyvsp[-1]).tipo == T_ENTERO) || (sim.tipo == (yyvsp[-1]).tipo == T_LOGICO)))
+					yyerror("Error de tipos en la instrucion de asginacion");
+			}
+#line 1419 "asin.c" /* yacc.c:1646  */
+    break;
+
+  case 22:
+#line 94 "./src/asin.y" /* yacc.c:1646  */
+    {
+
+			}
+#line 1427 "asin.c" /* yacc.c:1646  */
+    break;
+
+  case 23:
+#line 98 "./src/asin.y" /* yacc.c:1646  */
+    {
+
+			}
+#line 1435 "asin.c" /* yacc.c:1646  */
+    break;
+
+
+#line 1439 "asin.c" /* yacc.c:1646  */
       default: break;
     }
   /* User semantic actions sometimes alter yychar, and that requires
@@ -1589,4 +1663,4 @@ yyreturn:
 #endif
   return yyresult;
 }
-#line 130 "./src/asin.y" /* yacc.c:1906  */
+#line 165 "./src/asin.y" /* yacc.c:1906  */

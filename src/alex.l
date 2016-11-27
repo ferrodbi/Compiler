@@ -6,7 +6,7 @@
 %}
 
 /* Subseccion de definiciones */
-%option yylineno
+%option yylineno 
 delimitador [ \t]+
 letra [a-zA-Z]
 digito [0-9]
@@ -57,7 +57,7 @@ false						{ECHO;return (FALSE_);}
 "}"							{ECHO;return (CLLA_);}
 ")"							{ECHO;return (CPAR_);}
 "]"							{ECHO;return (CCOR_);}
-{digito}+                   {ECHO;return (CTE_);}
-{letra}({letra}|{digito})*  {ECHO;return (ID_);}
+{digito}+                  	{ECHO;yylval.cent = atoi(yytext); return (CTE_);}
+{letra}({letra}|{digito})*  {ECHO;yylval.ident = strdup(yytext); return (ID_);}
 .                           {ECHO;}
 %%

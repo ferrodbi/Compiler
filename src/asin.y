@@ -14,6 +14,13 @@
 %token FOR_ IF_ ELSE_
 %token READ_ PRINT_
 %error-verbose
+%union{
+	int cent;
+	char *ident;
+}
+%type<cent> name
+%type<*ident> id
+%type<campos> listaCampos
 %%
 
 programa: ALLA_ secuenciaSentencias CLLA_
@@ -25,37 +32,55 @@ sentencia: declaracion
 			| instruccion
 			;
 declaracion: tipoSimple ID_ PCOMA_
-			{if(!insertarTDS($2,$1,dvar,-1){
-				yyerror("Identificador repetido");
-				}
+			{
+				if(!insertarTDS($2.id,$1.name,dvar,-1)){
+					yyerror("Identificador repetido");
+					}
+				else dvar += TALLA_TIPO_SIMPLE;
 			}
 			| tipoSimple ID_ ACOR_ CTE_ CCOR_  PCOMA_
-			{ int numelem=$4; int refe;
+			{	
+				int numelem=$4; int refe;
 				if($4 <=0) {
 					yyerror("Talla inapropiada del array");
 					numelem=0;
 				}
 				refe = insertaTDArray($1,numelem);
 				if(!insertarTDS($2,T_ARRAY,dvar,refe))
-					yyerror("Identificador repetido");
-				else dvar += numelem * TALLA_TIPO_SIMPLE; /////////VERY IMPORTANT
+				yyerror("Identificador repetido");
+				else dvar += numelem * TALLA_TIPO_SIMPLE; 
 			}
 			| STRUCT_ ALLA_ listaCampos CLLA_  ID_ PCOMA_
 			{
-			
+				if(!insertarTDS($5,$4))...
+				
 			}
 			;
 tipoSimple: INT_
-			{$$ = T_ENTERO;}
+			{
+				$$ = T_ENTERO;
+			}
 			| BOOL_
-			{$$ = T_LOGICO;}
+			{
+				$$ = T_LOGICO;
+			}
 			;
 listaCampos: tipoSimple ID_ PCOMA_
-			{ insertarCampo($$,$2,$1,dvar);
+			{
+				int $$ = insertarCampo(-1,$2,$1,dvar);
+				if(!$$){
+					yyerror("Nombre repetido en el registro");
+					}
+				else dvar += TALLA_TIPO_SIMPLE;
 			}
 			| listaCampos tipoSimple ID_ PCOMA_
-			{ insertarCampo($$,$3,$2,dvar);
+			{
+				if(!insertarCampo($$,$3,$2,dvar){
+					yyerror("Nombre repetido en el registro");
+				}
+				else dvar += TALLA_TIPO_SIMPLE;
 			}
+				
 			;
 instruccion: ALLA_ listaInstrucciones CLLA_
 			| instruccionAsignacion
@@ -67,11 +92,10 @@ listaInstrucciones:
 			| listaInstrucciones instruccion
 			;
 instruccionAsignacion: ID_ IGU_ expresion PCOMA_
-						{SIMB sim = obtenerTDS($1);
-						if (sim.tipo == T_ERROR) yyerror("Objeto no declarado");
-						else if(! ((sim.tipo == $3.tipo == T_ENTERO) ||
-					   				(sim.tipo == $3.tipo == T_LOGICO)))
-						yyerror("Error de tipos en la instrucion de asginacion");
+			{	SIMB sim = obtenerTDS($1);
+				if (sim.tipo == T_ERROR) yyerror("Objeto no declarado");
+				else if(! ((sim.tipo == $3.tipo == T_ENTERO) || (sim.tipo == $3.tipo == T_LOGICO)))
+					yyerror("Error de tipos en la instrucion de asginacion");
 			}
 			| ID_ ACOR_ expresion CCOR_ IGU_ expresion PCOMA_
 			{

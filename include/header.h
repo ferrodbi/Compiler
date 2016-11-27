@@ -17,5 +17,9 @@ extern int verbosidad;              /* Flag para saber si se desea una traza */
 extern int numErrores;              /* Contador del numero de errores        */
 /*************************************************** Constantes tallas tipos */
 #define TALLA_TIPO_SIMPLE 1
+struct {
+	int num_campo;
+	int talla;
+}campos;
 #endif  /* _HEADER_H */
 /*****************************************************************************/

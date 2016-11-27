@@ -1023,12 +1023,12 @@ YY_RULE_SETUP
 case 38:
 YY_RULE_SETUP
 #line 60 "./src/alex.l"
-{ECHO;return (CTE_);}
+{ECHO;yylval.cent = atoi(yytext); return (CTE_);}
 	YY_BREAK
 case 39:
 YY_RULE_SETUP
 #line 61 "./src/alex.l"
-{ECHO;return (ID_);}
+{ECHO;yylval.ident = strdup(yytext); return (ID_);}
 	YY_BREAK
 case 40:
 YY_RULE_SETUP

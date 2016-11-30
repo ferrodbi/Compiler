@@ -5,7 +5,7 @@
 #include "asin.h"
 %}
 
-/* Subseccion de definiciones */
+/* Subseccion de definiciones TERMINALES_*/
 %option yylineno 
 delimitador [ \t]+
 letra [a-zA-Z]

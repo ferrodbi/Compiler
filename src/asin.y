@@ -19,6 +19,7 @@
 %token BOOL_ INT_ STRUCT_
 %token FOR_ IF_ ELSE_
 %token READ_ PRINT_
+<<<<<<< HEAD
 
 %token<cent> CTE_
 %token<ident> ID_
@@ -27,6 +28,16 @@
 %type<cent> tipoSimple
 %type<exp> expresion expresionIgualdad expresionRelacional expresionAditiva expresionMultiplicativa expresionUnaria expresionSufija
 %type<tipouna> operadorUnario
+=======
+%error-verbose
+%union{ //atributos
+	char *ident;
+	int cent;
+}
+%type <cent> name
+%type <campos> listaCampos
+%token <*ident> id
+>>>>>>> ec0829ac464843dacac45ece0e6d83c74ab8dcf4
 %%
 
 programa: ALLA_ secuenciaSentencias CLLA_
@@ -39,22 +50,27 @@ sentencia: declaracion
 			;
 declaracion: tipoSimple ID_ PCOMA_
 			{
-				if(!insertarTDS($2,$1,dvar,-1)){
+<<<<<<< HEAD
+				if(insertarTDS($2,$1,dvar,-1)){
+					dvar += TALLA_TIPO_SIMPLE;
+				} else {
 					yyerror("Identificador repetido");
-					}
-				else dvar += TALLA_TIPO_SIMPLE;
+				}
 			}
 			| tipoSimple ID_ ACOR_ CTE_ CCOR_  PCOMA_
 			{	
-				int numelem=$4; int refe;
-				if($4 <=0) {
+				int refe;
+				if($4 < 1) {
 					yyerror("Talla inapropiada del array");
-					numelem=0;
+					insetarTDS($2,T_ERROR,0,-1)	
+				} else {
+					refe = insertaTDArray($1,$4);
+					if( insertarTDS($2,T_ARRAY,dvar,refe) ){
+						dvar += $4 * TALLA_TIPO_SIMPLE; 
+					} else {
+						yyerror("Identificador repetido");
+					}
 				}
-				refe = insertaTDArray($1,numelem);
-				if(!insertarTDS($2,T_ARRAY,dvar,refe))
-				yyerror("Identificador repetido");
-				else dvar += numelem * TALLA_TIPO_SIMPLE; 
 			}
 			| STRUCT_ ALLA_ listaCampos CLLA_  ID_ PCOMA_
 			{

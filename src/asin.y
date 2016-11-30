@@ -19,7 +19,6 @@
 %token BOOL_ INT_ STRUCT_
 %token FOR_ IF_ ELSE_
 %token READ_ PRINT_
-<<<<<<< HEAD
 
 %token<cent> CTE_
 %token<ident> ID_
@@ -28,16 +27,6 @@
 %type<cent> tipoSimple
 %type<exp> expresion expresionIgualdad expresionRelacional expresionAditiva expresionMultiplicativa expresionUnaria expresionSufija
 %type<tipouna> operadorUnario
-=======
-%error-verbose
-%union{ //atributos
-	char *ident;
-	int cent;
-}
-%type <cent> name
-%type <campos> listaCampos
-%token <*ident> id
->>>>>>> ec0829ac464843dacac45ece0e6d83c74ab8dcf4
 %%
 
 programa: ALLA_ secuenciaSentencias CLLA_
@@ -50,7 +39,6 @@ sentencia: declaracion
 			;
 declaracion: tipoSimple ID_ PCOMA_
 			{
-<<<<<<< HEAD
 				if(insertarTDS($2,$1,dvar,-1)){
 					dvar += TALLA_TIPO_SIMPLE;
 				} else {

@@ -1,10 +1,16 @@
 %{
 #include <stdio.h>
-#include <libtds.h>
 #include "header.h"
+#include "libtds.h"
 %}
-%token ID_ CTE_  
-%token MAS_ MENOS_ MASMAS_ MENOSMENOS_ PROD_ DIV_ 
+%union{
+	int cent;
+	int tipouna;
+	char *ident;
+	structCampos campos;
+	structExpresion exp;
+}
+%token MASMAS_ MENOSMENOS_ PROD_ DIV_ 
 %token MAY_ MENOR_ MAYIGU_ MENIGU_ IGU_ IGUIGU_ NOTIGU_ EXCL_ 
 %token ANDAND_ OROR_
 %token ALLA_ CLLA_ APAR_ CPAR_ ACOR_ CCOR_
@@ -13,14 +19,14 @@
 %token BOOL_ INT_ STRUCT_
 %token FOR_ IF_ ELSE_
 %token READ_ PRINT_
-%error-verbose
-%union{
-	int cent;
-	char *ident;
-}
-%type<cent> name
-%type<*ident> id
+
+%token<cent> CTE_
+%token<ident> ID_
+%token<tipouna> MAS_ MENOS_ 
 %type<campos> listaCampos
+%type<cent> tipoSimple
+%type<exp> expresion expresionIgualdad expresionRelacional expresionAditiva expresionMultiplicativa expresionUnaria expresionSufija
+%type<tipouna> operadorUnario
 %%
 
 programa: ALLA_ secuenciaSentencias CLLA_
@@ -33,7 +39,7 @@ sentencia: declaracion
 			;
 declaracion: tipoSimple ID_ PCOMA_
 			{
-				if(!insertarTDS($2.id,$1.name,dvar,-1)){
+				if(!insertarTDS($2,$1,dvar,-1)){
 					yyerror("Identificador repetido");
 					}
 				else dvar += TALLA_TIPO_SIMPLE;
@@ -52,7 +58,10 @@ declaracion: tipoSimple ID_ PCOMA_
 			}
 			| STRUCT_ ALLA_ listaCampos CLLA_  ID_ PCOMA_
 			{
-				if(!insertarTDS($5,$4))...
+				if(!insertarTDS($5,T_RECORD,dvar,$3.talla)) yyerror("..");
+				else{
+					dvar+=$3.talla;
+				}
 				
 			}
 			;
@@ -67,20 +76,21 @@ tipoSimple: INT_
 			;
 listaCampos: tipoSimple ID_ PCOMA_
 			{
-				int $$ = insertarCampo(-1,$2,$1,dvar);
-				if(!$$){
-					yyerror("Nombre repetido en el registro");
-					}
-				else dvar += TALLA_TIPO_SIMPLE;
+				$$.refe = insertaCampo(-1,$2,$1,0);
+				if(!$$.refe){
+					yyerror("Nombre de campo repetido en el registro");
+				} else {
+					$$.talla = TALLA_TIPO_SIMPLE;
+				}
 			}
 			| listaCampos tipoSimple ID_ PCOMA_
 			{
-				if(!insertarCampo($$,$3,$2,dvar){
+				$$.refe = insertaCampo($1.refe,$3,$2,$1.talla); 
+				if(!$$.refe){
 					yyerror("Nombre repetido en el registro");
 				}
-				else dvar += TALLA_TIPO_SIMPLE;
+				else  $$.talla = $1.talla + TALLA_TIPO_SIMPLE;
 			}
-				
 			;
 instruccion: ALLA_ listaInstrucciones CLLA_
 			| instruccionAsignacion
@@ -98,12 +108,21 @@ instruccionAsignacion: ID_ IGU_ expresion PCOMA_
 					yyerror("Error de tipos en la instrucion de asginacion");
 			}
 			| ID_ ACOR_ expresion CCOR_ IGU_ expresion PCOMA_
-			{
-
+			{	SIMB sim = obtenerTDS($1);
+				DIM di = obtenerInfoArray(sim.ref);
+				if(sim.tipo == T_ERROR) yyerror("Objeto no declarado");
+				else if (sim.tipo != T_ARRAY) yyerror("Tipo incorrecto");
+				else if ($3.tipo != T_ENTERO) yyerror("Indice no entero");
+				else if (atoi($3) <  1) yyerror("Indice del array incorrecto");
+				else if (di.telem == T_ERROR) yyerror("Array no declarado");
+				else if (di.telem != $6.tipo) yyerror("Tipo del array no coincide");
 			}
 			| ID_ PUNTO_ ID_ IGU_ expresion PCOMA_
-			{
-
+			{	SIMB sim = obtenerTDS($1);
+				REG re = obtenerInfoCampo(sim.ref,$3);
+				if (sim.tipo == T_ERROR) yyerror("Objeto no declarado");
+				else if (re.tipo == T_ERROR) yyerror("Campo no encontrado");
+				else if (re.tipo == $5.tipo) yyerror("Tipo del campo no coincidente");
 			}
 			;
 instruccionEntradaSalida: READ_ APAR_ ID_ CPAR_ PCOMA_

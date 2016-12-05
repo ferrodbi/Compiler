@@ -5,13 +5,15 @@
 %}
 %union{
 	int cent;
+	int tsimple;
 	int tipouna;
 	char *ident;
 	structCampos campos;
 	structExpresion exp;
+	structTipoUnario una;
 }
 %token MASMAS_ MENOSMENOS_ PROD_ DIV_ 
-%token MAY_ MENOR_ MAYIGU_ MENIGU_ IGU_ IGUIGU_ NOTIGU_ EXCL_ 
+%token MAY_ MENOR_ MAYIGU_ MENIGU_ IGU_ IGUIGU_ NOTIGU_  
 %token ANDAND_ OROR_
 %token ALLA_ CLLA_ APAR_ CPAR_ ACOR_ CCOR_
 %token PCOMA_ PUNTO_
@@ -22,11 +24,11 @@
 
 %token<cent> CTE_
 %token<ident> ID_
-%token<tipouna> MAS_ MENOS_ 
+%token<una> MAS_ MENOS_ EXCL_
+%type<cent> operadorIncremento
 %type<campos> listaCampos
-%type<cent> tipoSimple
+%type<tsimple> tipoSimple
 %type<exp> expresion expresionIgualdad expresionRelacional expresionAditiva expresionMultiplicativa expresionUnaria expresionSufija
-%type<tipouna> operadorUnario
 %%
 
 programa: ALLA_ secuenciaSentencias CLLA_
@@ -50,7 +52,7 @@ declaracion: tipoSimple ID_ PCOMA_
 				int refe;
 				if($4 < 1) {
 					yyerror("Talla inapropiada del array");
-					insetarTDS($2,T_ERROR,0,-1)	
+					insertarTDS($2,T_ERROR,0,-1);
 				} else {
 					refe = insertaTDArray($1,$4);
 					if( insertarTDS($2,T_ARRAY,dvar,refe) ){
@@ -82,6 +84,8 @@ listaCampos: tipoSimple ID_ PCOMA_
 			{
 				$$.refe = insertaCampo(-1,$2,$1,0);
 				if(!$$.refe){
+					mostrarTDS();
+					yyerror($$.refe);
 					yyerror("Nombre de campo repetido en el registro");
 				} else {
 					$$.talla = TALLA_TIPO_SIMPLE;
@@ -109,7 +113,7 @@ instruccionAsignacion: ID_ IGU_ expresion PCOMA_
 			{	SIMB sim = obtenerTDS($1);
 				if (sim.tipo == T_ERROR) yyerror("Objeto no declarado");
 				else if(! ((sim.tipo == $3.tipo == T_ENTERO) || (sim.tipo == $3.tipo == T_LOGICO)))
-					yyerror("Error de tipos en la instrucion de asginacion");
+					yyerror("Error de tipos en la instrucion de asignacion");
 			}
 			| ID_ ACOR_ expresion CCOR_ IGU_ expresion PCOMA_
 			{	SIMB sim = obtenerTDS($1);
@@ -157,16 +161,49 @@ expresionMultiplicativa: expresionUnaria
 			;
 expresionUnaria: expresionSufija
 			| operadorUnario expresionUnaria
+			{	
+				$$.tipo=$2.tipo;
+			}
 			| operadorIncremento ID_
+			{
+				SIMB sim = obtenerTDS($2);
+				$$.tipo = sim.tipo;
+			}
 			;
 expresionSufija: ID_
+			{
+				SIMB sim = obtenerTDS($1);
+				$$.tipo = sim.tipo;
+			}
 			| ID_ ACOR_ expresion CCOR_
+			{
+				$$.tipo = T_ARRAY;
+			}
 			| ID_ PUNTO_ ID_
+			{
+				$$.tipo = T_RECORD;
+			}
 			| APAR_ expresion CPAR_
+			{
+				$$.tipo = $2.tipo;
+			}
 			| ID_ operadorIncremento
+			{
+				$$.tipo = T_ENTERO;
+			}
 			| CTE_
+			{
+				$$.tipo = T_ENTERO;
+
+			}
 			| TRUE_
+			{
+				$$.tipo = T_LOGICO;
+			}
 			| FALSE_
+			{
+				$$.tipo = T_LOGICO;
+			}
 			;
 operadorLogico: ANDAND_
 			| OROR_
@@ -190,6 +227,7 @@ operadorUnario: MAS_
 			| EXCL_
 			;
 operadorIncremento: MASMAS_
+
 			| MENOSMENOS_
 			;
 %%

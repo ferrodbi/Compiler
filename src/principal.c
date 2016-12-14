@@ -15,7 +15,7 @@ void yyerror(const char * msg)
 {
   numErrores++;
   fprintf(stdout, "\nError at line %d: %s\n", yylineno, msg);
-  mostrarTDS();
+  //mostrarTDS();
 }
 /*****************************************************************************/
 int main (int argc, char **argv) 

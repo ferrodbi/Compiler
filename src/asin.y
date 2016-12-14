@@ -6,14 +6,14 @@
 %union{
 	int cent;
 	int tsimple;
-	int tipouna;
+	//int tipouna;
 	char *ident;
 	structCampos campos;
 	structExpresion exp;
-	structTipoUnario una;
+	//structTipoUnario una;
 }
 %token MASMAS_ MENOSMENOS_ PROD_ DIV_ 
-%token MAY_ MENOR_ MAYIGU_ MENIGU_ IGU_ IGUIGU_ NOTIGU_  
+%token MAY_ MENOR_ MAYIGU_ MENIGU_ IGU_ IGUIGU_ NOTIGU_  MAS_ MENOS_ EXCL_
 %token ANDAND_ OROR_
 %token ALLA_ CLLA_ APAR_ CPAR_ ACOR_ CCOR_
 %token PCOMA_ PUNTO_
@@ -24,7 +24,7 @@
 
 %token<cent> CTE_
 %token<ident> ID_
-%token<una> MAS_ MENOS_ EXCL_
+//%token<una> MAS_ MENOS_ EXCL_
 %type<cent> operadorIncremento
 %type<campos> listaCampos
 %type<tsimple> tipoSimple
@@ -63,8 +63,9 @@ declaracion: tipoSimple ID_ PCOMA_
 				}
 			}
 			| STRUCT_ ALLA_ listaCampos CLLA_  ID_ PCOMA_
-			{
-				if(!insertarTDS($5,T_RECORD,dvar,$3.talla)) yyerror("..");
+			{	int refe = insertarTDS($5,T_RECORD,dvar,$3.talla); 
+				if(!refe) 
+					yyerror("Error en struct");
 				else{
 					dvar+=$3.talla;
 				}
@@ -83,9 +84,7 @@ tipoSimple: INT_
 listaCampos: tipoSimple ID_ PCOMA_
 			{
 				$$.refe = insertaCampo(-1,$2,$1,0);
-				if(!$$.refe){
-					mostrarTDS();
-					yyerror($$.refe);
+				if($$.refe < 0){
 					yyerror("Nombre de campo repetido en el registro");
 				} else {
 					$$.talla = TALLA_TIPO_SIMPLE;
@@ -94,7 +93,7 @@ listaCampos: tipoSimple ID_ PCOMA_
 			| listaCampos tipoSimple ID_ PCOMA_
 			{
 				$$.refe = insertaCampo($1.refe,$3,$2,$1.talla); 
-				if(!$$.refe){
+				if($$.refe < 0){
 					yyerror("Nombre repetido en el registro");
 				}
 				else  $$.talla = $1.talla + TALLA_TIPO_SIMPLE;
@@ -112,8 +111,8 @@ listaInstrucciones:
 instruccionAsignacion: ID_ IGU_ expresion PCOMA_
 			{	SIMB sim = obtenerTDS($1);
 				if (sim.tipo == T_ERROR) yyerror("Objeto no declarado");
-				else if(! ((sim.tipo == $3.tipo == T_ENTERO) || (sim.tipo == $3.tipo == T_LOGICO)))
-					yyerror("Error de tipos en la instrucion de asignacion");
+				//else if(! ((sim.tipo == $3.tipo == T_ENTERO) || (sim.tipo == $3.tipo == T_LOGICO)))
+				//	yyerror("Error de tipos en la instrucion de asignacion");
 			}
 			| ID_ ACOR_ expresion CCOR_ IGU_ expresion PCOMA_
 			{	SIMB sim = obtenerTDS($1);
@@ -127,10 +126,13 @@ instruccionAsignacion: ID_ IGU_ expresion PCOMA_
 			}
 			| ID_ PUNTO_ ID_ IGU_ expresion PCOMA_
 			{	SIMB sim = obtenerTDS($1);
-				REG re = obtenerInfoCampo(sim.ref,$3);
 				if (sim.tipo == T_ERROR) yyerror("Objeto no declarado");
-				else if (re.tipo == T_ERROR) yyerror("Campo no encontrado");
-				else if (re.tipo == $5.tipo) yyerror("Tipo del campo no coincidente");
+				else {
+					REG reg;
+					reg = obtenerInfoCampo(sim.ref,$3);
+					if (reg.tipo == T_ERROR) yyerror("Campo no encontrado");
+					else if (reg.tipo == $5.tipo) yyerror("Tipo del campo no coincidente");
+				}
 			}
 			;
 instruccionEntradaSalida: READ_ APAR_ ID_ CPAR_ PCOMA_
@@ -160,9 +162,10 @@ expresionMultiplicativa: expresionUnaria
 			| expresionMultiplicativa operadorMultiplicativo expresionUnaria
 			;
 expresionUnaria: expresionSufija
+
 			| operadorUnario expresionUnaria
 			{	
-				$$.tipo=$2.tipo;
+				$$.tipo = $2.tipo;
 			}
 			| operadorIncremento ID_
 			{
@@ -181,7 +184,17 @@ expresionSufija: ID_
 			}
 			| ID_ PUNTO_ ID_
 			{
-				$$.tipo = T_RECORD;
+				SIMB sim = obtenerTDS($1);
+				if(sim.tipo == T_RECORD){
+					REG reg = obtenerInfoCampo(sim.ref,$3);
+					if (reg.tipo == T_ERROR)
+						yyerror("Campo no existe");
+					else $$.tipo = reg.tipo;
+				} else {
+					$$.tipo = T_ERROR;
+					yyerror("El identificador debe ser \"struct\"");
+					}
+				//$$.tipo = T_RECORD;
 			}
 			| APAR_ expresion CPAR_
 			{

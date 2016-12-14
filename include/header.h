@@ -21,11 +21,14 @@ typedef struct {
 	int refe;
 	int talla;
 }structCampos;
+
 typedef struct {
 	int tipo;
 }structExpresion;
+
 typedef struct {
 	int tipo;
 }structTipoUnario;
+
 #endif  /* _HEADER_H */
 /*****************************************************************************/

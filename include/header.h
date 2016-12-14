@@ -17,16 +17,16 @@ extern int verbosidad;              /* Flag para saber si se desea una traza */
 extern int numErrores;              /* Contador del numero de errores        */
 /*************************************************** Constantes tallas tipos */
 #define TALLA_TIPO_SIMPLE 1
-typedef struct {
+typedef struct c{
 	int refe;
 	int talla;
 }structCampos;
 
-typedef struct {
+typedef struct d{
 	int tipo;
 }structExpresion;
 
-typedef struct {
+typedef struct e{
 	int tipo;
 }structTipoUnario;
 

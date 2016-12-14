@@ -63,7 +63,8 @@ declaracion: tipoSimple ID_ PCOMA_
 				}
 			}
 			| STRUCT_ ALLA_ listaCampos CLLA_  ID_ PCOMA_
-			{	int refe = insertarTDS($5,T_RECORD,dvar,$3.talla); 
+			{	int refe = insertarTDS($5,T_RECORD,dvar,$3.refe);
+				//printf("\nInsertar struct devuelve: %d\n",refe); 
 				if(!refe) 
 					yyerror("Error en struct");
 				else{
@@ -84,19 +85,29 @@ tipoSimple: INT_
 listaCampos: tipoSimple ID_ PCOMA_
 			{
 				$$.refe = insertaCampo(-1,$2,$1,0);
+				//insertarTDS($2,$1,dvar,$$.refe);
+				//insertarTDS(char *nom, int tipo, int desp, int ref) ;
+				//printf("\n campo unico: %d\n",$$.refe);
 				if($$.refe < 0){
 					yyerror("Nombre de campo repetido en el registro");
 				} else {
 					$$.talla = TALLA_TIPO_SIMPLE;
+					//dvar += TALLA_TIPO_SIMPLE;
 				}
+
+				//mostrarTDS();
 			}
 			| listaCampos tipoSimple ID_ PCOMA_
 			{
-				$$.refe = insertaCampo($1.refe,$3,$2,$1.talla); 
-				if($$.refe < 0){
+				//printf("\n$$,$1: %d %d , %d %d\n",$$.refe,$$.talla,$1.refe,$1.talla);
+				int ref = insertaCampo($1.refe,$3,$2,$1.talla); 
+				//printf("\nOtros campos: %d\n",$$.refe);
+				if(ref < 0){
 					yyerror("Nombre repetido en el registro");
 				}
 				else  $$.talla = $1.talla + TALLA_TIPO_SIMPLE;
+				//mostrarTDS();
+
 			}
 			;
 instruccion: ALLA_ listaInstrucciones CLLA_
@@ -110,28 +121,44 @@ listaInstrucciones:
 			;
 instruccionAsignacion: ID_ IGU_ expresion PCOMA_
 			{	SIMB sim = obtenerTDS($1);
+				//printf("\n%d == %d\n",sim.tipo, $3.tipo);
 				if (sim.tipo == T_ERROR) yyerror("Objeto no declarado");
-				//else if(! ((sim.tipo == $3.tipo == T_ENTERO) || (sim.tipo == $3.tipo == T_LOGICO)))
-				//	yyerror("Error de tipos en la instrucion de asignacion");
+				else if(! ((sim.tipo == $3.tipo == T_ENTERO) || (sim.tipo == $3.tipo == T_LOGICO)))
+				//{
+				//else if(sim.tipo != $3.tipo){
+				//if($3.tipo == T_ERROR){
+				//		printf("\nWarning, propagando un T_ERROR\n");
+				//	}
+				//	else 
+				if($3.tipo != T_ERROR)
+				yyerror("Error de tipos en la asignacion");
+				//}
 			}
 			| ID_ ACOR_ expresion CCOR_ IGU_ expresion PCOMA_
 			{	SIMB sim = obtenerTDS($1);
-				DIM di = obtenerInfoArray(sim.ref);
-				if(sim.tipo == T_ERROR) yyerror("Objeto no declarado");
-				else if (sim.tipo != T_ARRAY) yyerror("Tipo incorrecto");
-				else if ($3.tipo != T_ENTERO) yyerror("Indice no entero");
-				else if (atoi($3) <  1) yyerror("Indice del array incorrecto");
-				else if (di.telem == T_ERROR) yyerror("Array no declarado");
-				else if (di.telem != $6.tipo) yyerror("Tipo del array no coincide");
+				if (sim.tipo != T_ARRAY) {
+					yyerror("Identificador debe ser tipo array");
+				} else {
+					DIM dim = obtenerInfoArray(sim.ref);
+					if(sim.tipo == T_ERROR) yyerror("Objeto no declarado");
+					else if (sim.tipo != T_ARRAY) yyerror("Tipo incorrecto");
+					else if ($3.tipo != T_ENTERO) yyerror("Indice no entero");
+					else if (atoi($3) <  1) yyerror("Indice del array incorrecto");
+					else if (atoi($3) >= dim.telem) yyerror("Out of bounds exception");
+					else if (dim.telem == T_ERROR) yyerror("Array no declarado");
+					else if (dim.telem != $6.tipo) yyerror("Tipo del array no coincide");
+				}
 			}
 			| ID_ PUNTO_ ID_ IGU_ expresion PCOMA_
 			{	SIMB sim = obtenerTDS($1);
 				if (sim.tipo == T_ERROR) yyerror("Objeto no declarado");
 				else {
 					REG reg;
+					//printf("\nSim.ref: %d\n",sim.ref);
 					reg = obtenerInfoCampo(sim.ref,$3);
+					//printf("\nReg.tipo: %d\n",reg.tipo);
 					if (reg.tipo == T_ERROR) yyerror("Campo no encontrado");
-					else if (reg.tipo == $5.tipo) yyerror("Tipo del campo no coincidente");
+					else if (reg.tipo != $5.tipo) yyerror("Tipo del campo no coincidente");
 				}
 			}
 			;
@@ -139,6 +166,9 @@ instruccionEntradaSalida: READ_ APAR_ ID_ CPAR_ PCOMA_
 			| PRINT_ APAR_ expresion CPAR_ PCOMA_
 			;
 instruccionSeleccion: IF_ APAR_ expresion CPAR_ instruccion ELSE_ instruccion
+			{ if($3.tipo != T_LOGICO) yyerror("Expresion no es tipo logico");
+
+			}
 			;
 instruccionIteracion: FOR_ APAR_ expresionOpcional PCOMA_ expresion PCOMA_ expresionOpcional CPAR_ instruccion 
 			;
@@ -162,6 +192,9 @@ expresionMultiplicativa: expresionUnaria
 			| expresionMultiplicativa operadorMultiplicativo expresionUnaria
 			;
 expresionUnaria: expresionSufija
+			{	
+				$$.tipo = $1.tipo;
+			}
 
 			| operadorUnario expresionUnaria
 			{	
@@ -188,8 +221,9 @@ expresionSufija: ID_
 				if(sim.tipo == T_RECORD){
 					REG reg = obtenerInfoCampo(sim.ref,$3);
 					if (reg.tipo == T_ERROR)
-						yyerror("Campo no existe");
-					else $$.tipo = reg.tipo;
+						yyerror("Campo no declarado");
+					//else 
+					$$.tipo = reg.tipo;
 				} else {
 					$$.tipo = T_ERROR;
 					yyerror("El identificador debe ser \"struct\"");

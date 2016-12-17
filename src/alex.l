@@ -60,5 +60,8 @@ false						{ECHO;return (FALSE_);}
 {digito}*"."{digito}+		{ECHO;yylval.cent = atoi(yytext); return (CTE_);}
 {digito}+                  	{ECHO;yylval.cent = atoi(yytext); return (CTE_);}
 {letra}({letra}|{digito})*  {ECHO;yylval.ident = strdup(yytext); return (ID_);}
-.                           {ECHO;}
+.                           {ECHO;basura();}
 %%
+void basura(){
+	if (verbosidad) printf("\n\"%s\" ha sido tratado como basura\n",yytext);
+}

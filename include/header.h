@@ -34,5 +34,8 @@ typedef struct e{
 //Declaracion de funciones para eliminar warnings
 int yylex();
 void yyerror();
+int yyparse();
+void mostrarTDS();
+void basura();
 #endif  /* _HEADER_H */
 /*****************************************************************************/

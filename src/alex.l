@@ -8,7 +8,7 @@
 /* Subseccion de definiciones TERMINALES_*/
 %option yylineno 
 delimitador [ \t]+
-letra [a-zA-Z]
+letra [a-zA-Z\_] 
 digito [0-9]
 comentario "//"[^\n]*"\n"
 %%
@@ -57,6 +57,7 @@ false						{ECHO;return (FALSE_);}
 "}"							{ECHO;return (CLLA_);}
 ")"							{ECHO;return (CPAR_);}
 "]"							{ECHO;return (CCOR_);}
+{digito}*"."{digito}+		{ECHO;yylval.cent = atoi(yytext); return (CTE_);}
 {digito}+                  	{ECHO;yylval.cent = atoi(yytext); return (CTE_);}
 {letra}({letra}|{digito})*  {ECHO;yylval.ident = strdup(yytext); return (ID_);}
 .                           {ECHO;}

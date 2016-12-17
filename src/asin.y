@@ -8,6 +8,7 @@
 	int tsimple;
 	//int tipouna;
 	char *ident;
+	char opuna;
 	structCampos campos;
 	structExpresion exp;
 	//structTipoUnario una;
@@ -24,11 +25,12 @@
 
 %token<cent> CTE_
 %token<ident> ID_
-//%token<una> MAS_ MENOS_ EXCL_
-%type<cent> operadorIncremento
+%type<opuna> operadorUnario
+//%type<cent> operadorIncremento
 %type<campos> listaCampos
 %type<tsimple> tipoSimple
-%type<exp> expresion expresionIgualdad expresionRelacional expresionAditiva expresionMultiplicativa expresionUnaria expresionSufija
+%type<exp> expresionOpcional expresion expresionIgualdad expresionRelacional expresionAditiva expresionMultiplicativa expresionUnaria expresionSufija
+//%token<una> MAS_ MENOS_ EXCL_
 %%
 
 programa: ALLA_ secuenciaSentencias CLLA_
@@ -136,18 +138,27 @@ instruccionAsignacion: ID_ IGU_ expresion PCOMA_
 			}
 			| ID_ ACOR_ expresion CCOR_ IGU_ expresion PCOMA_
 			{	SIMB sim = obtenerTDS($1);
-				if (sim.tipo != T_ARRAY) {
-					yyerror("Identificador debe ser tipo array");
-				} else {
-					DIM dim = obtenerInfoArray(sim.ref);
-					if(sim.tipo == T_ERROR) yyerror("Objeto no declarado");
-					else if (sim.tipo != T_ARRAY) yyerror("Tipo incorrecto");
-					else if ($3.tipo != T_ENTERO) yyerror("Indice no entero");
-					else if (atoi($3) <  1) yyerror("Indice del array incorrecto");
-					else if (atoi($3) >= dim.telem) yyerror("Out of bounds exception");
-					else if (dim.telem == T_ERROR) yyerror("Array no declarado");
-					else if (dim.telem != $6.tipo) yyerror("Tipo del array no coincide");
-				}
+				
+				/*
+				if(expresion.tipo != T_ERROR)
+					printf("\nWarning!! expresion es error\n");
+				
+					//$$.tipo = T_ERROR;
+				else {
+				*/
+					if (sim.tipo != T_ARRAY) {
+						yyerror("Identificador debe ser tipo array");
+					} else {
+						DIM dim = obtenerInfoArray(sim.ref);
+						if(sim.tipo == T_ERROR) yyerror("Objeto no declarado");
+						else if (sim.tipo != T_ARRAY) yyerror("Tipo incorrecto");
+						else if ($3.tipo != T_ENTERO) yyerror("Indice no entero");
+						else if ($3.valor <  0) yyerror("Indice del array incorrecto");
+						else if ($3.valor >= dim.nelem) yyerror("Out of bounds exception");
+						else if (dim.telem == T_ERROR) yyerror("Array no declarado");
+						else if (dim.telem != $6.tipo) yyerror("Tipo del array no coincide");
+					}
+				//}
 			}
 			| ID_ PUNTO_ ID_ IGU_ expresion PCOMA_
 			{	SIMB sim = obtenerTDS($1);
@@ -160,50 +171,153 @@ instruccionAsignacion: ID_ IGU_ expresion PCOMA_
 					if (reg.tipo == T_ERROR) yyerror("Campo no encontrado");
 					else if (reg.tipo != $5.tipo) yyerror("Tipo del campo no coincidente");
 				}
+			
 			}
 			;
 instruccionEntradaSalida: READ_ APAR_ ID_ CPAR_ PCOMA_
+			{
+				SIMB simb = obtenerTDS($3);
+				if (simb.tipo == T_ERROR) yyerror("Objeto no declarado");
+				else if (simb.tipo != T_ENTERO) yyerror("Argumento de read debe ser entero");
+
+			}
 			| PRINT_ APAR_ expresion CPAR_ PCOMA_
+			{
+				if ($3.tipo != T_ENTERO) yyerror("Argumento de print debe ser entero");
+			}
 			;
 instruccionSeleccion: IF_ APAR_ expresion CPAR_ instruccion ELSE_ instruccion
-			{ if($3.tipo != T_LOGICO) yyerror("Expresion no es tipo logico");
+			{ 	//printf("\n%d\n",$3.tipo);
+				if($3.tipo != T_LOGICO && $3.tipo == T_VACIO) yyerror("Expresion no es tipo logico");
 
 			}
 			;
-instruccionIteracion: FOR_ APAR_ expresionOpcional PCOMA_ expresion PCOMA_ expresionOpcional CPAR_ instruccion 
+instruccionIteracion: FOR_ APAR_ expresionOpcional PCOMA_ expresion PCOMA_ expresionOpcional 
+			{
+				if($5.tipo != T_LOGICO) yyerror("Condicion del for debe ser logica");
+			}CPAR_ instruccion
+			{
+
+			}
 			;
 expresionOpcional: expresion
+			{
+				$$.tipo = $1.tipo;
+				if ($1.tipo == T_ENTERO)
+					$$.valor = $1.valor;
+			}
 			| ID_ IGU_ expresion
+			{
+				$$.tipo = $3.tipo;
+				if ($3.tipo == T_ENTERO)
+					$$.valor = $3.valor;
+
+			}
 			|
+			{
+				$$.tipo = T_VACIO;
+			}
 			;
 expresion: expresionIgualdad
+			{
+				$$.tipo = $1.tipo;
+				if ($1.tipo == T_ENTERO)
+					$$.valor = $1.valor;
+			}
 			| expresion operadorLogico expresionIgualdad
+			{
+				if($1.tipo == T_LOGICO && $3.tipo == T_LOGICO)
+					$$.tipo = T_LOGICO;
+				else{
+					yyerror("Error en expresion");
+					$$.tipo = T_ERROR;
+				}
+			}
 			;
 expresionIgualdad: expresionRelacional
+			{
+				$$.tipo = $1.tipo;
+				if ($1.tipo == T_ENTERO)
+					$$.valor = $1.valor;
+			}
 			| expresionIgualdad operadorIgualdad expresionRelacional
+			{
+				if($1.tipo != $3.tipo) {
+					yyerror("Error en expresion igualdad (tipos no equivalentes)");
+				}
+				$$.tipo = T_LOGICO;
+			}
 			;
 expresionRelacional: expresionAditiva
+			{
+				$$.tipo = $1.tipo;
+				if ($1.tipo == T_ENTERO)
+					$$.valor = $1.valor;
+			}
 			| expresionRelacional operadorRelacional expresionAditiva
+			{
+				if ( ($1.tipo != T_ENTERO) || ($3.tipo != T_ENTERO) )
+				{
+					//printf("\n%d %d\n",$1.tipo, $3.tipo);
+					yyerror("Error en expresion relacional. Argumentos no enteros.");
+					$$.tipo = T_ERROR;
+				} else $$.tipo = T_LOGICO;
+			}
 			;
 expresionAditiva: expresionMultiplicativa
+			{
+				$$.tipo = $1.tipo;
+				if ($1.tipo == T_ENTERO)
+					$$.valor = $1.valor;
+			}
 			| expresionAditiva operadorAditivo expresionMultiplicativa
+			{
+				if ( ($1.tipo != T_ENTERO) || ($3.tipo != T_ENTERO) )
+				{
+					yyerror("Error en expresion aditiva. Argumentos no enteros.");
+					$$.tipo = T_ERROR;
+				} else $$.tipo = T_ENTERO;
+			}
 			;
 expresionMultiplicativa: expresionUnaria
+			{
+				$$.tipo = $1.tipo;
+				if ($1.tipo == T_ENTERO)
+					$$.valor = $1.valor;
+			}
 			| expresionMultiplicativa operadorMultiplicativo expresionUnaria
+			{
+				if ( ($1.tipo != T_ENTERO) || ($3.tipo != T_ENTERO) )
+				{
+					yyerror("Error en expresion multiplicativa. Argumentos no enteros");
+					$$.tipo = T_ERROR;
+				} else $$.tipo = T_ENTERO;
+			}
 			;
 expresionUnaria: expresionSufija
 			{	
 				$$.tipo = $1.tipo;
+				if ($1.tipo == T_ENTERO)
+					$$.valor = $1.valor;
 			}
 
 			| operadorUnario expresionUnaria
 			{	
-				$$.tipo = $2.tipo;
+				if($1 == "!" && $2.tipo == T_LOGICO)
+					$$.tipo = T_LOGICO;
+				else if( ( ($1 == '+') || ($1 == '-') ) && $2.tipo == T_ENTERO)
+					$$.tipo = T_ENTERO;
+				else {
+					yyerror("Error en expresion unaria");
+					$$.tipo = T_ERROR;
+				}
 			}
 			| operadorIncremento ID_
 			{
 				SIMB sim = obtenerTDS($2);
-				$$.tipo = sim.tipo;
+				if (sim.tipo == T_LOGICO) yyerror("Tipo incorrecto en expresion unaria");
+				//$$.tipo = sim.tipo;
+				$$.tipo = T_ENTERO;
 			}
 			;
 expresionSufija: ID_
@@ -213,7 +327,19 @@ expresionSufija: ID_
 			}
 			| ID_ ACOR_ expresion CCOR_
 			{
-				$$.tipo = T_ARRAY;
+				SIMB sim = obtenerTDS($1);
+				DIM dim;
+				//$$.tipo = T_ERROR;
+				if (sim.tipo == T_ERROR) { yyerror("Objeto no declarado"); $$.tipo == T_ERROR;}
+				else if (sim.tipo != T_ARRAY){ yyerror("Tipo incorrecto"); $$.tipo == T_ERROR;}
+				if ($3.tipo != T_ENTERO) { yyerror("Indice no entero"); $$.tipo == T_ERROR;}
+				else{
+					if ($3.valor <  0) {yyerror("Indice del array incorrecto (negativo)"); $$.tipo == T_ERROR;}
+					dim = obtenerInfoArray(sim.ref);
+					if ($3.valor >= dim.nelem) {yyerror("Indice del array incorrecto (excesivo)"); $$.tipo == T_ERROR;}
+					else if (dim.telem == T_ERROR) {yyerror("Array no declarado"); $$.tipo == T_ERROR;}
+					else $$.tipo = dim.telem;
+				}
 			}
 			| ID_ PUNTO_ ID_
 			{
@@ -226,7 +352,7 @@ expresionSufija: ID_
 					$$.tipo = reg.tipo;
 				} else {
 					$$.tipo = T_ERROR;
-					yyerror("El identificador debe ser \"struct\"");
+					yyerror("El identificador debe ser struct");
 					}
 				//$$.tipo = T_RECORD;
 			}
@@ -236,12 +362,14 @@ expresionSufija: ID_
 			}
 			| ID_ operadorIncremento
 			{
-				$$.tipo = T_ENTERO;
+				SIMB sim = obtenerTDS($1);
+				$$.tipo = (sim.tipo == T_ENTERO) ? T_ENTERO : T_ERROR;
+
 			}
 			| CTE_
 			{
 				$$.tipo = T_ENTERO;
-
+				$$.valor = $1;
 			}
 			| TRUE_
 			{
@@ -270,8 +398,17 @@ operadorMultiplicativo: PROD_
 			| DIV_
 			;
 operadorUnario: MAS_
+			{
+				$$ = '+';
+			}
 			| MENOS_
+			{
+				$$ = '-';
+			}
 			| EXCL_
+			{
+				$$ = '!';
+			}
 			;
 operadorIncremento: MASMAS_
 

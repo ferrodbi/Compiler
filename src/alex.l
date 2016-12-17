@@ -13,8 +13,8 @@ digito [0-9]
 comentario "//"[^\n]*"\n"
 %%
 {delimitador}     			{ECHO;}
-"\n"                        {ECHO;}
-{comentario}				{ECHO;}
+"\n"                        {ECHO;if(verbosidad)printf("%3d-",yylineno);}
+{comentario}				{ECHO;if(verbosidad)printf("%3d-",yylineno);}
 if                          {ECHO;return (IF_);}
 else						{ECHO;return (ELSE_);}
 for                         {ECHO;return (FOR_);}

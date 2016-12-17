@@ -24,11 +24,15 @@ typedef struct c{
 
 typedef struct d{
 	int tipo;
+	int valor;
 }structExpresion;
 
 typedef struct e{
 	int tipo;
 }structTipoUnario;
 
+//Declaracion de funciones para eliminar warnings
+int yylex();
+void yyerror();
 #endif  /* _HEADER_H */
 /*****************************************************************************/

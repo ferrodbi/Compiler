@@ -3,65 +3,78 @@
 #include <stdio.h>
 #include "header.h"
 #include "asin.h"
+
+#define devolver(x) {if(verbosidad) ECHO; return x;}
 %}
 
-/* Subseccion de definiciones TERMINALES_*/
-%option yylineno 
-delimitador [ \t]+
-letra [a-zA-Z\_] 
-digito [0-9]
-comentario "//"[^\n]*"\n"
+/* Subseccion de definiciones TERMINALES */
+%option yylineno
+/* Nombre variables */
+id              {letra}({letra}|{digito})*
+letra           {letraMay}|{letraMin}|"_"
+letraMay        [A-Z]
+letraMin        [a-z]
+/* Numeros */
+digito          [0-9]
+cte             {digito}+
+ctr             ({digito}*"."{digito}+)|({digito}+"."{digito}*)
+/* Otros */
+comentario      "//"[^\n]*"\n"
+delimitador     [ \t]+
+nuevalinea      \n
+
+
 %%
-{delimitador}     			{ECHO;}
-"\n"                        {ECHO;if(verbosidad)printf("%3d-",yylineno);}
-{comentario}				{ECHO;if(verbosidad)printf("%3d-",yylineno);}
-if                          {ECHO;return (IF_);}
-else						{ECHO;return (ELSE_);}
-for                         {ECHO;return (FOR_);}
-read 						{ECHO;return (READ_);}
-print                 		{ECHO;return (PRINT_);}
-true						{ECHO;return (TRUE_);}
-false						{ECHO;return (FALSE_);}
+{comentario}    {if(verbosidad) fprintf(stdout, "\n%3d.- ", yylineno);}
+{delimitador}   {if(verbosidad) ECHO;}
+{nuevalinea}    {if(verbosidad) {ECHO; fprintf("%3d.- ", yylineno);}}
 
-"int"						{ECHO;return (INT_);}
-"bool"						{ECHO;return (BOOL_);}
-"struct"					{ECHO;return (STRUCT_);}
-"."							{ECHO;return (PUNTO_);}
-";"							{ECHO;return (PCOMA_);}
+"if"            {procesar(IF_);}
+"else"          {procesar(ELSE_);}
+"for"           {procesar(FOR_);}
+"read"          {procesar(READ_);}
+"print"         {procesar(PRINT_);}
+"true"          {procesar(TRUE_);}
+"false"         {procesar(FALSE_);}
 
-"+"                         {ECHO;return (MAS_);}
-"-"                         {ECHO;return (MENOS_);}
+"int"           {procesar(INT_);}
+"bool"          {procesar(BOOL_);}
+"struct"        {procesar(STRUCT_);}
+"."             {procesar(PUNTO_);}
+";"             {procesar(PCOMA_);}
 
-"*"                         {ECHO;return (PROD_);}
-"/"                         {ECHO;return (DIV_);}
+"+"             {procesar(MAS_);}
+"-"             {procesar(MENOS_);}
 
-"++"                        {ECHO;return (MASMAS_);}
-"--"                        {ECHO;return (MENOSMENOS_);}
-"!"                         {ECHO;return (EXCL_);}
+"*"             {procesar(PROD_);}
+"/"             {procesar(DIV_);}
 
-"&&"                        {ECHO;return (ANDAND_);}
-"||"                        {ECHO;return (OROR_);}
+"++"            {procesar(MASMAS_);}
+"--"            {procesar(MENOSMENOS_);}
+"!"             {procesar(EXCL_);}
 
-"="							{ECHO;return (IGU_);}
-"=="                        {ECHO;return (IGUIGU_);}
-"!="                        {ECHO;return (NOTIGU_);}
+"&&"            {procesar(ANDAND_);}
+"||"            {procesar(OROR_);}
 
-">"                         {ECHO;return (MAY_);} 
-"<"                         {ECHO;return (MENOR_);}
-">="                        {ECHO;return (MAYIGU_);}
-"<="                        {ECHO;return (MENIGU_);}
+"="             {procesar(IGU_);}
+"=="            {procesar(IGUIGU_);}
+"!="            {procesar(NOTIGU_);}
 
-"{"							{ECHO;return (ALLA_);}
-"("							{ECHO;return (APAR_);}
-"["							{ECHO;return (ACOR_);}
-"}"							{ECHO;return (CLLA_);}
-")"							{ECHO;return (CPAR_);}
-"]"							{ECHO;return (CCOR_);}
-({digito}*"."{digito}+)|{digito}+"."{digito}*	{ECHO;yylval.cent = atoi(yytext); return (CTE_);}
-{digito}+                  	{ECHO;yylval.cent = atoi(yytext); return (CTE_);}
-{letra}({letra}|{digito})*  {ECHO;yylval.ident = strdup(yytext); return (ID_);}
-.                           {ECHO;basura();}
+">"             {procesar(MAY_);} 
+"<"             {procesar(MENOR_);}
+">="            {procesar(MAYIGU_);}
+"<="            {procesar(MENIGU_);}
+
+"{"             {procesar(ALLA_);}
+"("             {procesar(APAR_);}
+"["             {procesar(ACOR_);}
+"}"             {procesar(CLLA_);}
+")"             {procesar(CPAR_);}
+"]"             {procesar(CCOR_);}
+
+{id}            {yylval.ident = strdup(yytext); procesar(ID_);}
+{cte}           {yylval.cent = atoi(yytext); procesar(CTE_);}
+{ctr}           {yylval.cent = atoi(yytext); procesar(CTE_);}
+
+.               {yyerror("Caracter desconocido"); ECHO;}
 %%
-void basura(){
-	if (verbosidad) printf("\n\"%s\" ha sido tratado como basura\n",yytext);
-}

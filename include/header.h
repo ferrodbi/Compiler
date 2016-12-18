@@ -1,7 +1,7 @@
 /*****************************************************************************/
 /**   Ejemplo de un posible fichero de cabeceras ("header.h") donde situar  **/
 /** las definiciones de constantes, variables y estructuras para MenosC.17  **/
-/** Los alumos deberan adaptarlo al desarrollo de su propio compilador.     **/ 
+/** Los alumnos deberan adaptarlo al desarrollo de su propio compilador.    **/ 
 /*****************************************************************************/
 #ifndef _HEADER_H
 #define _HEADER_H
@@ -17,25 +17,26 @@ extern int verbosidad;              /* Flag para saber si se desea una traza */
 extern int numErrores;              /* Contador del numero de errores        */
 /*************************************************** Constantes tallas tipos */
 #define TALLA_TIPO_SIMPLE 1
-typedef struct c{
+
+typedef struct c {
 	int refe;
 	int talla;
-}structCampos;
+} structCampos;
 
-typedef struct d{
+typedef struct d {
 	int tipo;
 	int valor;
-}structExpresion;
+} structExpresion;
 
-typedef struct e{
+typedef struct e {
 	int tipo;
-}structTipoUnario;
+} structTipoUnario;
 
-//Declaracion de funciones para eliminar warnings
+// Declaracion de funciones para eliminar warnings
 int yylex();
 void yyerror();
 int yyparse();
 void mostrarTDS();
-void basura();
+
 #endif  /* _HEADER_H */
 /*****************************************************************************/

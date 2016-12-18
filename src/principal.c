@@ -35,6 +35,7 @@ int main (int argc, char **argv)
       yyparse ();
       if (numErrores > 0) 
         fprintf(stdout,"\nNumero de errores:      %d\n", numErrores);
+      if (verTDS) mostrarTDS();
     }   
   }
   else fprintf (stderr, "Uso: cmc [-v] [-t] fichero\n");

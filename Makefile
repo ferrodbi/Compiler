@@ -4,11 +4,11 @@
 #                         Jose Miguel Benedi, 2016-2017 <jbenedi@dsic.upv.es> #
 ###############################################################################
 CC_OPTIONS = -pedantic
-CC_LIBRARY = -lfl -ltds
+CC_LIBRARY = -lfl -ltds -lgci
 CC_LINKS_FLAGS = $(CC_LIBRARY) $(CC_OPTIONS)
-OBJECTS = ./alex.o  ./asin.o ./principal.o 
+OBJECTS = ./alex.o  ./asin.o ./principal.o
 
-cmc:	$(OBJECTS) ./lib/libtds.a
+cmc:	$(OBJECTS) ./lib/libtds.a ./lib/libgci.a
 	gcc -o cmc $(OBJECTS) -L./lib -I./include $(CC_LINKS_FLAGS)
 principal.o: ./src/principal.c
 	gcc -c ./src/principal.c -I./include $(CC_OPTIONS)
@@ -21,7 +21,8 @@ asin.c:	./src/asin.y
 	mv asin.h ./include	
 alex.c:	./src/alex.l 
 	flex -oalex.c ./src/alex.l
+
 clean:
-	rm -f alex.c asin.c ./include/asin.h 
+	rm -f alex.c asin.c ./include/asin.h
 	rm -f ./*.o *.?~ ./include/*.?~ ./src/*.?~
 ###############################################################################

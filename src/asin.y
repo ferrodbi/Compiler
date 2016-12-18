@@ -24,7 +24,7 @@
 
 %token<cent> CTE_
 %token<ident> ID_
-%type<opuna> operadorUnario
+%type<opuna> operadorUnario operadorLogico operadorIncremento operadorIgualdad operadorRelacional operadorAditivo operadorMultiplicativo
 %type<campos> listaCampos
 %type<tsimple> tipoSimple
 %type<exp> expresionOpcional expresion expresionIgualdad expresionRelacional expresionAditiva expresionMultiplicativa expresionUnaria expresionSufija
@@ -377,21 +377,64 @@ expresionSufija: ID_
 			}
 			;
 operadorLogico: ANDAND_
+			{
+				$$ = '&';
+			}
+			
 			| OROR_
+			{
+				$$ = '|';
+			}
 			;
 operadorIgualdad: IGUIGU_
+			{
+				$$ = '+';
+			}
+		
 			| NOTIGU_
+			{
+				$$ = '!';
+			}
 			;
 operadorRelacional: MAY_ 
+			{
+				$$ = '>';
+			}
+		
 			| MENOR_
+			{
+				$$ = '<';
+			}
+			
 			| MAYIGU_
+			{
+				$$ = '+';
+			}
+		
 			| MENIGU_
+			{
+				$$ = '-';
+			}
 			;
 operadorAditivo: MAS_
+			{
+				$$ = '+';
+			}
+			
 			| MENOS_
+			{
+				$$ = '-';
+			}
 			;
 operadorMultiplicativo: PROD_
+			{
+				$$ = '*';
+			}
+			
 			| DIV_
+			{
+				$$ = '/';
+			}
 			;
 operadorUnario: MAS_
 			{
@@ -409,7 +452,13 @@ operadorUnario: MAS_
 			}
 			;
 operadorIncremento: MASMAS_
+			{
+				$$ = '+';
+			}
 
 			| MENOSMENOS_
+			{
+				$$ = '-';
+			}
 			;
 %%

@@ -54,5 +54,6 @@ int yylex();
 void yyerror();
 int yyparse();
 void mostrarTDS();
+int volcarCodigo();
 #endif  /* _HEADER_H */
 /*****************************************************************************/

@@ -32,6 +32,25 @@ typedef struct e {
 	int tipo;
 } structTipoUnario;
 
+// Identificadores de operadores
+#define OPIGUAL  0
+#define OPANDAND 1
+#define OPOROR   2
+#define OPIGIG   3
+#define OPNOTIG  4
+#define OPMAYOR  5
+#define OPMENOR  6
+#define OPMAYIG  7
+#define OPMENIG  8
+#define OPSUMA   9
+#define OPRESTA  10
+#define OPMULT   11
+#define OPDIV    12
+#define OPPOS    13
+#define OPNOT    14
+#define OPMASMAS 15
+#define OPMENMEN 16
+
 // Declaracion de funciones para eliminar warnings
 int yylex();
 void yyerror();

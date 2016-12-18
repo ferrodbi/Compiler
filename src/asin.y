@@ -9,7 +9,8 @@
   int cent;
   int tsimple;
   char *ident;
-  char opuna;
+  int opuna;
+  //char opuna;
   structCampos campos;
   structExpresion exp;
 }
@@ -29,8 +30,16 @@
 %token<ident> ID_
 
 %type<opuna> operadorUnario
+%type<opuna> operadorIncremento
+%type<opuna> operadorLogico
+%type<opuna> operadorIgualdad
+%type<opuna> operadorRelacional
+%type<opuna> operadorAditivo
+%type<opuna> operadorMultiplicativo
+
 %type<campos> listaCampos
 %type<tsimple> tipoSimple
+
 %type<exp> expresionOpcional
 %type<exp> expresion
 %type<exp> expresionIgualdad
@@ -476,37 +485,73 @@ expresionSufija: ID_
 
 /*****************************************************************************/
 operadorLogico: ANDAND_
+      {
+        $$ = OPANDAND;
+      }
       | OROR_
+      {
+        $$ = OPOROR;
+      }
       ;
 /*****************************************************************************/
 
 
 /*****************************************************************************/
 operadorIgualdad: IGUIGU_
+      {
+        $$ = OPIGIG;
+      }
       | NOTIGU_
+      {
+        $$ = OPNOTIG;
+      }
       ;
 /*****************************************************************************/
 
 
 /*****************************************************************************/
-operadorRelacional: MAY_ 
+operadorRelacional: MAY_
+      {
+        $$ = OPMAYOR;
+      }
       | MENOR_
+      {
+        $$ = OPMENOR;
+      }
       | MAYIGU_
+      {
+        $$ = OPMAYIG;
+      }
       | MENIGU_
+      {
+        $$ = OPMENIG;
+      }
       ;
 /*****************************************************************************/
 
 
 /*****************************************************************************/
 operadorAditivo: MAS_
+      {
+        $$ = OPSUMA;
+      }
       | MENOS_
+      {
+        $$ = OPRESTA;
+      }
       ;
 /*****************************************************************************/
 
 
 /*****************************************************************************/
 operadorMultiplicativo: PROD_
+      {
+        $$ = OPMULT;
+      }
       | DIV_
+      {
+        $$ = OPDIV;
+      }
       ;
 /*****************************************************************************/
 
@@ -514,15 +559,18 @@ operadorMultiplicativo: PROD_
 /*****************************************************************************/
 operadorUnario: MAS_
       {
-        $$ = '+';
+        //$$ = '+';
+        $$ = OPSUMA;
       }
       | MENOS_
       {
-        $$ = '-';
+        //$$ = '-';
+        $$ = OPRESTA;
       }
       | EXCL_
       {
-        $$ = '!';
+        //$$ = '!';
+        $$ = OPNOT;
       }
       ;
 /*****************************************************************************/
@@ -530,7 +578,13 @@ operadorUnario: MAS_
 
 /*****************************************************************************/
 operadorIncremento: MASMAS_
+      {
+        $$ = OPMASMAS;
+      }
       | MENOSMENOS_
+      {
+        $$ = OPMENMEN;
+      }
       ;
 /*****************************************************************************/
 %%

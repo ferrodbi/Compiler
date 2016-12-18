@@ -121,7 +121,8 @@ instruccion: ALLA_ listaInstrucciones CLLA_
 listaInstrucciones: 
 			| listaInstrucciones instruccion
 			;
-instruccionAsignacion: ID_ IGU_ expresion PCOMA_
+instruccionAsignacion: ID_ IGU_ expresion
+			{} PCOMA_
 			{	SIMB sim = obtenerTDS($1);
 				//printf("\n%d == %d\n",sim.tipo, $3.tipo);
 				if (sim.tipo == T_ERROR) yyerror("Objeto no declarado");
@@ -153,10 +154,13 @@ instruccionAsignacion: ID_ IGU_ expresion PCOMA_
 						if(sim.tipo == T_ERROR) yyerror("Objeto no declarado");
 						else if (sim.tipo != T_ARRAY) yyerror("Tipo incorrecto");
 						else if ($3.tipo != T_ENTERO) yyerror("Indice no entero");
-						else if ($3.valor <  0) yyerror("Indice del array incorrecto");
-						else if ($3.valor >= dim.nelem) yyerror("Out of bounds exception");
-						else if (dim.telem == T_ERROR) yyerror("Array no declarado");
-						else if (dim.telem != $6.tipo) yyerror("Tipo del array no coincide");
+						else if ($3.valor <  0  || $3.valor >= dim.nelem){
+							yyerror("Indice del array incorrecto");
+						}
+						if($6.tipo != T_ERROR){
+							if (dim.telem == T_ERROR) yyerror("Array no declarado");
+							else if (dim.telem != $6.tipo) yyerror("Tipo del array no coincide");
+						}
 					}
 				//}
 			}
@@ -169,7 +173,7 @@ instruccionAsignacion: ID_ IGU_ expresion PCOMA_
 					reg = obtenerInfoCampo(sim.ref,$3);
 					//printf("\nReg.tipo: %d\n",reg.tipo);
 					if (reg.tipo == T_ERROR) yyerror("Campo no encontrado");
-					else if (reg.tipo != $5.tipo) yyerror("Tipo del campo no coincidente");
+					else if (reg.tipo != $5.tipo) yyerror("Error de tipos en la asginacion");
 				}
 			
 			}
@@ -229,7 +233,9 @@ expresion: expresionIgualdad
 				if($1.tipo == T_LOGICO && $3.tipo == T_LOGICO)
 					$$.tipo = T_LOGICO;
 				else{
-					yyerror("Error en expresion");
+					if($1.tipo != T_ERROR && $3.tipo != T_ERROR) {
+						yyerror("Error en expresion");
+					}
 					$$.tipo = T_ERROR;
 				}
 			}
@@ -258,8 +264,11 @@ expresionRelacional: expresionAditiva
 			{
 				if ( ($1.tipo != T_ENTERO) || ($3.tipo != T_ENTERO) )
 				{
-					//printf("\n%d %d\n",$1.tipo, $3.tipo);
-					yyerror("Error en expresion relacional. Argumentos no enteros.");
+					
+					if($1.tipo != T_ERROR && $3.tipo != T_ERROR){
+						printf("\n%d %d %d\n",$1.tipo,$3.tipo,T_ERROR);
+						yyerror("Error en expresion relacional. Argumentos no enteros.");
+					}
 					$$.tipo = T_ERROR;
 				} else $$.tipo = T_LOGICO;
 			}
@@ -274,8 +283,10 @@ expresionAditiva: expresionMultiplicativa
 			{
 				if ( ($1.tipo != T_ENTERO) || ($3.tipo != T_ENTERO) )
 				{
-					yyerror("Error en expresion aditiva. Argumentos no enteros.");
-					$$.tipo = T_ERROR;
+					if ($1.tipo != T_ERROR && $3.tipo != T_ERROR){ 
+						yyerror("Error en expresion aditiva. Argumentos no enteros.");
+						$$.tipo = T_ERROR;
+					}
 				} else $$.tipo = T_ENTERO;
 			}
 			;
@@ -330,14 +341,16 @@ expresionSufija: ID_
 				SIMB sim = obtenerTDS($1);
 				DIM dim;
 				//$$.tipo = T_ERROR;
-				if (sim.tipo == T_ERROR) { yyerror("Objeto no declarado"); $$.tipo == T_ERROR;}
-				else if (sim.tipo != T_ARRAY){ yyerror("Tipo incorrecto"); $$.tipo == T_ERROR;}
-				if ($3.tipo != T_ENTERO) { yyerror("Indice no entero"); $$.tipo == T_ERROR;}
+				if (sim.tipo == T_ERROR) { yyerror("Objeto no declarado"); $$.tipo = T_ERROR;}
+				else if (sim.tipo != T_ARRAY){ yyerror("Tipo incorrecto"); $$.tipo = T_ERROR;}
+				if ($3.tipo != T_ENTERO) { yyerror("Indice no entero"); $$.tipo = T_ERROR;}
 				else{
-					if ($3.valor <  0) {yyerror("Indice del array incorrecto (negativo)"); $$.tipo == T_ERROR;}
 					dim = obtenerInfoArray(sim.ref);
-					if ($3.valor >= dim.nelem) {yyerror("Indice del array incorrecto (excesivo)"); $$.tipo == T_ERROR;}
-					else if (dim.telem == T_ERROR) {yyerror("Array no declarado"); $$.tipo == T_ERROR;}
+					if ($3.valor <  0 || $3.valor >= dim.nelem) {
+						$$.tipo = T_ERROR;
+						yyerror("Indice del array incorrecto");
+					}
+					else if (dim.telem == T_ERROR) {yyerror("Array no declarado"); $$.tipo = T_ERROR;}
 					else $$.tipo = dim.telem;
 				}
 			}
@@ -346,8 +359,10 @@ expresionSufija: ID_
 				SIMB sim = obtenerTDS($1);
 				if(sim.tipo == T_RECORD){
 					REG reg = obtenerInfoCampo(sim.ref,$3);
-					if (reg.tipo == T_ERROR)
+					if (reg.tipo == T_ERROR){
+						$$.tipo = T_ERROR;
 						yyerror("Campo no declarado");
+					}
 					//else 
 					$$.tipo = reg.tipo;
 				} else {

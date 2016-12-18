@@ -60,8 +60,5 @@ false						{ECHO;return (FALSE_);}
 ({digito}*"."{digito}+)|{digito}+"."{digito}*	{ECHO;yylval.cent = atoi(yytext); return (CTE_);}
 {digito}+                  	{ECHO;yylval.cent = atoi(yytext); return (CTE_);}
 {letra}({letra}|{digito})*  {ECHO;yylval.ident = strdup(yytext); return (ID_);}
-.                           {ECHO;basura();}
+.                           {ECHO;yyerror("Caracter desconocido");}
 %%
-void basura(){
-	if (verbosidad) printf("\n\"%s\" ha sido tratado como basura\n",yytext);
-}

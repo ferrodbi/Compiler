@@ -36,6 +36,5 @@ int yylex();
 void yyerror();
 int yyparse();
 void mostrarTDS();
-void basura();
 #endif  /* _HEADER_H */
 /*****************************************************************************/

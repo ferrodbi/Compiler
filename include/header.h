@@ -19,37 +19,35 @@ extern int numErrores;              /* Contador del numero de errores        */
 #define TALLA_TIPO_SIMPLE 1
 
 typedef struct c {
-	int refe;
-	int talla;
+  int refe;
+  int talla;
 } structCampos;
 
 typedef struct d {
-	int tipo;
-	int valor;
+  int tipo;
+  int valor;
 } structExpresion;
 
 typedef struct e {
-	int tipo;
+  int tipo;
 } structTipoUnario;
 
 // Identificadores de operadores
-#define OPIGUAL  0
-#define OPANDAND 1
-#define OPOROR   2
-#define OPIGIG   3
-#define OPNOTIG  4
-#define OPMAYOR  5
-#define OPMENOR  6
-#define OPMAYIG  7
-#define OPMENIG  8
-#define OPSUMA   9
-#define OPRESTA  10
-#define OPMULT   11
-#define OPDIV    12
-#define OPPOS    13
-#define OPNOT    14
-#define OPMASMAS 15
-#define OPMENMEN 16
+#define OPANDAND 0
+#define OPOROR   1
+#define OPIGIG   2
+#define OPNOTIG  3
+#define OPMAYOR  4
+#define OPMENOR  5
+#define OPMAYIG  6
+#define OPMENIG  7
+#define OPSUMA   8
+#define OPRESTA  9
+#define OPMULT   10
+#define OPDIV    11
+#define OPNOT    12
+#define OPMASMAS 13
+#define OPMENMEN 14
 
 // Declaracion de funciones para eliminar warnings
 int yylex();

@@ -16,7 +16,7 @@
 
 
 %token MASMAS_ MENOSMENOS_ PROD_ DIV_ 
-%token MAY_ MENOR_ MAYIGU_ MENIGU_ IGU_ IGUIGU_ NOTIGU_  MAS_ MENOS_ EXCL_
+%token MAY_ MENOR_ MAYIGU_ MENIGU_ IGU_ IGUIGU_ NOTIGU_ MAS_ MENOS_ EXCL_
 %token ANDAND_ OROR_
 %token ALLA_ CLLA_ APAR_ CPAR_ ACOR_ CCOR_
 %token PCOMA_ PUNTO_
@@ -108,7 +108,6 @@ tipoSimple: INT_
       {
         $$ = T_ENTERO;
       }
-
       | BOOL_
       {
         $$ = T_LOGICO;
@@ -266,7 +265,6 @@ expresion: expresionIgualdad
         if($1.tipo == T_ENTERO)
           $$.valor = $1.valor;
       }
-
       | expresion operadorLogico expresionIgualdad
       {
         if($1.tipo == T_ENTERO || $3.tipo == T_ENTERO) {
@@ -334,7 +332,6 @@ expresionAditiva: expresionMultiplicativa
         if($1.tipo == T_ENTERO)
           $$.valor = $1.valor;
       }
-
       | expresionAditiva operadorAditivo expresionMultiplicativa
       {
         if(($1.tipo != T_ENTERO) || ($3.tipo != T_ENTERO))

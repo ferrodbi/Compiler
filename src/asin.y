@@ -387,9 +387,9 @@ expresionUnaria: expresionSufija
       }
       | operadorUnario expresionUnaria
       { 
-        if($1 == "!" && $2.tipo == T_LOGICO)
+        if($1 == OPNOT && $2.tipo == T_LOGICO)
           $$.tipo = T_LOGICO;
-        else if((($1 == '+') || ($1 == '-')) && $2.tipo == T_ENTERO)
+        else if((($1 == OPSUMA) || ($1 == OPRESTA)) && $2.tipo == T_ENTERO)
           $$.tipo = T_ENTERO;
         else {
           yyerror("Error en expresion unaria");

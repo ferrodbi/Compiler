@@ -1,7 +1,11 @@
+PROGRESO : ID[ exp ] 
+(terminado)
+
 %{
 #include <stdio.h>
 #include "header.h"
 #include "libtds.h"
+#include "libgci.h"
 %}
 
 
@@ -138,6 +142,7 @@ instruccionAsignacion: ID_ IGU_ expresion PCOMA_
         else if(!((sim.tipo == $3.tipo == T_ENTERO) || (sim.tipo == $3.tipo == T_LOGICO)))
           if($3.tipo != T_ERROR)
             yyerror("Error de tipos en la asignacion");
+        emite(EASIG,crArgPos($3.pos),crArgNul(),crArgPos(sim.desp));
       }
       | ID_ ACOR_ expresion CCOR_ IGU_ expresion PCOMA_
       {
@@ -145,6 +150,7 @@ instruccionAsignacion: ID_ IGU_ expresion PCOMA_
         if(sim.tipo != T_ARRAY) {
           yyerror("Identificador debe ser tipo array");
         }
+
         else {
           DIM dim = obtenerInfoArray(sim.ref);
           if(sim.tipo == T_ERROR) yyerror("Objeto no declarado");
@@ -162,13 +168,16 @@ instruccionAsignacion: ID_ IGU_ expresion PCOMA_
       | ID_ PUNTO_ ID_ IGU_ expresion PCOMA_
       {
         SIMB sim = obtenerTDS($1);
+        REG reg;
         if(sim.tipo == T_ERROR) yyerror("Objeto no declarado");
         else {
-          REG reg;
           reg = obtenerInfoCampo(sim.ref,$3);
           if(reg.tipo == T_ERROR) yyerror("Campo no encontrado");
           else if(reg.tipo != $5.tipo) yyerror("Error de tipos en la asginacion");
         }
+        int aux_pos = sim.desp + reg.desp;
+        //emite(EASIG,crArgPos($$.pos),crArgNul(),crArgPos(aux_pos));
+    
       }
       ;
 instruccionEntradaSalida: READ_ APAR_ ID_ CPAR_ PCOMA_
@@ -251,9 +260,7 @@ expresionIgualdad: expresionRelacional
       ;
 expresionRelacional: expresionAditiva
       {
-        $$.tipo = $1.tipo;
-        if($1.tipo == T_ENTERO)
-          $$.valor = $1.valor;
+        $$ = $1;
       }
       | expresionRelacional operadorRelacional expresionAditiva
       {
@@ -266,6 +273,8 @@ expresionRelacional: expresionAditiva
           $$.tipo = T_ERROR;
         } 
         else $$.tipo = T_LOGICO;
+        $$.pos = creaVarTemp();
+        emite($2,crArgPos($1.pos),crArgPos($3.pos),crArgPos($$.pos));
       }
       ;
 expresionAditiva: expresionMultiplicativa
@@ -322,7 +331,7 @@ expresionUnaria: expresionSufija
       { 
         if($1 == OPNOT && $2.tipo == T_LOGICO)
           $$.tipo = T_LOGICO;
-        else if((($1 == OPSUMA) || ($1 == OPRESTA)) && $2.tipo == T_ENTERO)
+        else if((($1 == ESUM) || ($1 == EDIF)) && $2.tipo == T_ENTERO)
           $$.tipo = T_ENTERO;
         else {
           yyerror("Error en expresion unaria");
@@ -340,6 +349,8 @@ expresionSufija: ID_
       {
         SIMB sim = obtenerTDS($1);
         $$.tipo = sim.tipo;
+        $$.pos = creaVarTemp();
+        emite(EASIG,crArgPos($$.pos),crArgNul(),crArgPos($$.pos));
       }
       | ID_ ACOR_ expresion CCOR_
       {
@@ -368,13 +379,18 @@ expresionSufija: ID_
             $$.tipo = T_ERROR;
           }
           else $$.tipo = dim.telem;
+          emite(EASIG,crArgPos($3.pos),crArgNul(),crArgPos($3.pos * dim.nelem));
+          $$.pos = creaVarTemp();
+         // emite(EASIG,crArgPos($$.pos),crArgNul(),crArgPos($1.pos[$3.pos]));
+          emite(EAV,crArgPos(sim.desp),crArgPos($3.pos),crArgPos($$.pos));
         }
-      }
+          }
       | ID_ PUNTO_ ID_
       {
         SIMB sim = obtenerTDS($1);
+        REG reg;
         if(sim.tipo == T_RECORD) {
-          REG reg = obtenerInfoCampo(sim.ref, $3);
+          reg = obtenerInfoCampo(sim.ref, $3);
           if(reg.tipo == T_ERROR) {
             $$.tipo = T_ERROR;
             yyerror("Campo no declarado");
@@ -385,10 +401,14 @@ expresionSufija: ID_
           $$.tipo = T_ERROR;
           yyerror("El identificador debe ser struct");
         }
+        $$.pos = creaVarTemp();
+        int aux_pos = sim.desp + reg.desp;
+        emite(EASIG,crArgPos(aux_pos),crArgNul(),crArgPos($$.pos));
+    
       }
       | APAR_ expresion CPAR_
       {
-        $$.tipo = $2.tipo;
+        $$ = $2;
       }
       | ID_ operadorIncremento
       {
@@ -399,6 +419,8 @@ expresionSufija: ID_
       {
         $$.tipo = T_ENTERO;
         $$.valor = $1;
+        $$.pos = creaVarTemp();
+        emite(EASIG,crArgEnt($1),crArgNul(),crArgPos($$.pos));
       }
       | TRUE_
       {
@@ -420,57 +442,57 @@ operadorLogico: ANDAND_
       ;
 operadorIgualdad: IGUIGU_
       {
-        $$ = OPIGIG;
+        $$ = EIGUAL;
       }
       | NOTIGU_
       {
-        $$ = OPNOTIG;
+        $$ = EDIST;
       }
       ;
 operadorRelacional: MAY_
       {
-        $$ = OPMAYOR;
+        $$ = EMAY;
       }
       | MENOR_
       {
-        $$ = OPMENOR;
+        $$ = EMEN;
       }
       | MAYIGU_
       {
-        $$ = OPMAYIG;
+        $$ = EMAYEQ;
       }
       | MENIGU_
       {
-        $$ = OPMENIG;
+        $$ = EMENEQ;
       }
       ;
 operadorAditivo: MAS_
       {
-        $$ = OPSUMA;
+        $$ = ESUM;
       }
       | MENOS_
       {
-        $$ = OPRESTA;
+        $$ = EDIF;
       }
       ;
 operadorMultiplicativo: PROD_
       {
-        $$ = OPMULT;
+        $$ = EMULT;
       }
       | DIV_
       {
-        $$ = OPDIV;
+        $$ = EDIVI;
       }
       ;
 operadorUnario: MAS_
       {
         //$$ = '+';
-        $$ = OPSUMA;
+        $$ = ESUM;
       }
       | MENOS_
       {
         //$$ = '-';
-        $$ = OPRESTA;
+        $$ = EDIF;
       }
       | EXCL_
       {

@@ -231,10 +231,14 @@ instruccionEntradaSalida: READ_ APAR_ ID_ CPAR_ PCOMA_
         SIMB simb = obtenerTDS($3);
         if(simb.tipo == T_ERROR) yyerror("Objeto no declarado");
         else if(simb.tipo != T_ENTERO) yyerror("Argumento de read debe ser entero");
+        
+        emite(EREAD, crArgNul(), crArgNul(), crArgPos(sim.desp));
       }
       | PRINT_ APAR_ expresion CPAR_ PCOMA_
       {
         if($3.tipo != T_ENTERO) yyerror("Argumento de print debe ser entero");
+        
+        emite(EWRITE, crArgNul(), crArgNul(), crArgPos($3.pos));
       }
       ;
 /*****************************************************************************/
@@ -242,9 +246,22 @@ instruccionEntradaSalida: READ_ APAR_ ID_ CPAR_ PCOMA_
 
 
 /*****************************************************************************/
-instruccionSeleccion: IF_ APAR_ expresion CPAR_ instruccion ELSE_ instruccion
+instruccionSeleccion: IF_ APAR_ expresion CPAR_
       {
         if($3.tipo != T_LOGICO && $3.tipo == T_VACIO) yyerror("Expresion no es tipo logico");
+        
+        $<cte>$ = creaLans(si);
+        emite(EIGUAL, crArgPos($3.pos), crArgEnt(0), crArgNul());
+      }
+      instruccion
+      {
+        $<cte>$ = creaLans(si);
+        emite(GOTOS, crArgNul(), crArgNul(), crArgNul());
+        completaLans($<cte>5, crArgEtq(si));
+      }
+      ELSE_ instruccion
+      {
+        completaLans($<cte>7, crArgEtq(si));
       }
       ;
 /*****************************************************************************/
@@ -270,6 +287,9 @@ expresionOpcional: expresion
         $$.tipo = $1.tipo;
         if($1.tipo == T_ENTERO)
           $$.valor = $1.valor;
+        
+        $$.pos = creaVarTemp();
+        emite(EASIG, crArgPos($1.pos), crArgNul(), crArgPos($$.pos));
       }
       | ID_ IGU_ expresion
       {

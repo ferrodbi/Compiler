@@ -411,7 +411,7 @@ expresionUnaria: expresionSufija
       { 
         if($1 == OPNOT && $2.tipo == T_LOGICO)
           $$.tipo = T_LOGICO;
-        else if((($1 == ESUM) || ($1 == EDIF)) && $2.tipo == T_ENTERO)
+        else if((($1 == OPSUMA) || ($1 == OPRESTA)) && $2.tipo == T_ENTERO)
           $$.tipo = T_ENTERO;
         else {
           yyerror("Error en expresion unaria");
@@ -536,11 +536,11 @@ operadorLogico: ANDAND_
 /*****************************************************************************/
 operadorIgualdad: IGUIGU_
       {
-        $$ = EIGUAL;
+        $$ = OPIGIG;
       }
       | NOTIGU_
       {
-        $$ = EDIST;
+        $$ = OPNOTIG;
       }
       ;
 /*****************************************************************************/
@@ -550,19 +550,19 @@ operadorIgualdad: IGUIGU_
 /*****************************************************************************/
 operadorRelacional: MAY_
       {
-        $$ = EMAY;
+        $$ = OPMAYOR;
       }
       | MENOR_
       {
-        $$ = EMEN;
+        $$ = OPMENOR;
       }
       | MAYIGU_
       {
-        $$ = EMAYEQ;
+        $$ = OPMAYIG;
       }
       | MENIGU_
       {
-        $$ = EMENEQ;
+        $$ = OPMENIG;
       }
       ;
 /*****************************************************************************/
@@ -572,11 +572,11 @@ operadorRelacional: MAY_
 /*****************************************************************************/
 operadorAditivo: MAS_
       {
-        $$ = ESUM;
+        $$ = OPSUMA;
       }
       | MENOS_
       {
-        $$ = EDIF;
+        $$ = OPRESTA;
       }
       ;
 /*****************************************************************************/
@@ -586,11 +586,11 @@ operadorAditivo: MAS_
 /*****************************************************************************/
 operadorMultiplicativo: PROD_
       {
-        $$ = EMULT;
+        $$ = OPMULT;
       }
       | DIV_
       {
-        $$ = EDIVI;
+        $$ = OPDIV;
       }
       ;
 /*****************************************************************************/
@@ -601,12 +601,12 @@ operadorMultiplicativo: PROD_
 operadorUnario: MAS_
       {
         //$$ = '+';
-        $$ = ESUM;
+        $$ = OPSUMA;
       }
       | MENOS_
       {
         //$$ = '-';
-        $$ = EDIF;
+        $$ = OPRESTA;
       }
       | EXCL_
       {

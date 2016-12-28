@@ -36,9 +36,19 @@ typedef struct e {
 // Identificadores de operadores
 #define OPANDAND 0
 #define OPOROR   1
-#define OPNOT    2
-#define OPMASMAS 3
-#define OPMENMEN 4
+#define OPIGIG   2
+#define OPNOTIG  3
+#define OPMAYOR  4
+#define OPMENOR  5
+#define OPMAYIG  6
+#define OPMENIG  7
+#define OPSUMA   8
+#define OPRESTA  9
+#define OPMULT   10
+#define OPDIV    11
+#define OPNOT    12
+#define OPMASMAS 13
+#define OPMENMEN 14
 
 // Constantes para el tipo de instrucciones 3D
 #define ARG_ENTERO 0

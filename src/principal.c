@@ -21,7 +21,8 @@ void yyerror(const char * msg)
 int main (int argc, char **argv)
 /* Gestiona la linea de comandos e invoca al analizador sintactico-semantico.*/
 { 
-  char *nom_fich; int i, n = 0;
+  char *nom_fich;
+  int i, n = 0;
 
   for(i = 0; i < argc; ++i) {
     if(strcmp(argv[i], "-v") == 0) {
@@ -33,8 +34,10 @@ int main (int argc, char **argv)
       n++;
     }
   }
+
   --argc;
   n++;
+  
   if(argc == n) {
     if((yyin = fopen(argv[argc], "r")) == NULL)
       fprintf(stderr, "Fichero no valido %s\n", argv[argc]);

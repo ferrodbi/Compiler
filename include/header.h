@@ -36,9 +36,9 @@ typedef struct e {
 // Identificadores de operadores
 #define OPANDAND 0
 #define OPOROR   1
-#define OPNOT    12
-#define OPMASMAS 13
-#define OPMENMEN 14
+#define OPNOT    2
+#define OPMASMAS 3
+#define OPMENMEN 4
 
 // Constantes para el tipo de instrucciones 3D
 #define ARG_ENTERO 0
@@ -53,5 +53,6 @@ void yyerror();
 int yyparse();
 void mostrarTDS();
 void volcarCodigo();
+
 #endif  /* _HEADER_H */
 /*****************************************************************************/

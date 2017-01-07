@@ -6,9 +6,9 @@
 %}
 
 /* Subseccion de definiciones terminales */
-%option yylineno 
+%option yylineno
 delimitador [ \t]+
-letra [a-zA-Z\_] 
+letra [a-zA-Z\_]
 digito [0-9]
 comentario "//"[^\n]*"\n"
 
@@ -48,7 +48,7 @@ false           {ECHO; return(FALSE_);}
 "=="            {ECHO; return(IGUIGU_);}
 "!="            {ECHO; return(NOTIGU_);}
 
-">"             {ECHO; return(MAY_);} 
+">"             {ECHO; return(MAY_);}
 "<"             {ECHO; return(MENOR_);}
 ">="            {ECHO; return(MAYIGU_);}
 "<="            {ECHO; return(MENIGU_);}

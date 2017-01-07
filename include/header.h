@@ -46,9 +46,11 @@ typedef struct e {
 #define OPRESTA  9
 #define OPMULT   10
 #define OPDIV    11
-#define OPNOT    12
-#define OPMASMAS 13
-#define OPMENMEN 14
+#define OPPOS    12
+#define OPNEG    13
+#define OPNOT    14
+#define OPMASMAS 15
+#define OPMENMEN 16
 
 // Constantes para el tipo de instrucciones 3D
 #define ARG_ENTERO 0
@@ -64,5 +66,8 @@ int yyparse();
 void mostrarTDS();
 void volcarCodigo();
 
+/************************** Variables externas definidas en las librerias ***/
+extern int si;
+ /* Desplazamiento relativo en el Segmento de Codigo */
 #endif  /* _HEADER_H */
 /*****************************************************************************/

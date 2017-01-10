@@ -221,6 +221,7 @@ instruccionAsignacion: ID_ IGU_ expresion PCOMA_
           else if(reg.tipo != $5.tipo) yyerror("Error de tipos en la asginacion");
         }
 
+        /* FALTA!!!!!! */
         int aux_pos = sim.desp + reg.desp;
         //emite(EASIG, crArgPos($$.pos), crArgNul(), crArgPos(aux_pos));
       }
@@ -278,7 +279,7 @@ instruccionIteracion: FOR_ APAR_ expresionOpcional PCOMA_ expresion PCOMA_ expre
         if($5.tipo != T_LOGICO) yyerror("Condicion del for debe ser logica");
       } CPAR_ instruccion
       {
-
+        /* FALTA, EXACTAMENT NO SÉ A ON. CREC QUE EL PUC FER PERO MIRA'L, QUE NO ESTA FET!!!!!! */
       }
       ;
 /*****************************************************************************/
@@ -292,6 +293,7 @@ expresionOpcional: expresion
         if($1.tipo == T_ENTERO)
           $$.valor = $1.valor;
         
+        /* FALTA. MIRAR ALTRES EXPRESIONS, PERQUE CREC QUE ES IGUAL QUE expresion: expresionIgualdad, etc.!!!!!! */
         //$$.pos = creaVarTemp();
         //emite(EASIG, crArgPos($1.pos), crArgNul(), crArgPos($$.pos));
       }
@@ -391,6 +393,7 @@ expresionIgualdad: expresionRelacional
 /*****************************************************************************/
 expresionRelacional: expresionAditiva
       {
+        /* JUST LA LINEA DE BAIX ESTA COM EXEMPLE DE LA PART 3, PERO LES ALTRES LES TENIM DIFERENT, MIRAR!!!!!! */
         $$ = $1;
 
         $$.pos = creaVarTemp();
@@ -595,6 +598,7 @@ expresionSufija: ID_
           yyerror("El identificador debe ser struct");
         }
 
+        /* ESTE NO SE SI ESTA BE. MIRAR!!!!!! */
         $$.pos = creaVarTemp();
         int aux_pos = sim.desp + reg.desp;
         emite(EASIG, crArgPos(aux_pos), crArgNul(), crArgPos($$.pos));

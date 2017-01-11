@@ -27,6 +27,10 @@ typedef struct d {
   int tipo;
   int valor;
   int pos;
+  int ini;
+  int fin;
+  int lv;
+  int lf;
 } structExpresion;
 
 typedef struct e {

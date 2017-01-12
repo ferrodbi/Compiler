@@ -31,6 +31,7 @@ typedef struct d {
   int fin;
   int lv;
   int lf;
+  int aux;
 } structExpresion;
 
 typedef struct e {

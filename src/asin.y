@@ -255,7 +255,6 @@ instruccionEntradaSalida: READ_ APAR_ ID_ CPAR_ PCOMA_
 instruccionSeleccion: IF_ APAR_ expresion CPAR_
       {
         if($3.tipo != T_LOGICO && $3.tipo == T_VACIO) yyerror("Expresion no es tipo logico");
-        
         $<exp>$.lf = creaLans(si);
         emite(EIGUAL, crArgPos($3.pos), crArgEnt(0), crArgNul());
       }
@@ -275,12 +274,28 @@ instruccionSeleccion: IF_ APAR_ expresion CPAR_
 
 
 /*****************************************************************************/
-instruccionIteracion: FOR_ APAR_ expresionOpcional PCOMA_ expresion PCOMA_ expresionOpcional
+instruccionIteracion: FOR_ APAR_ expresionOpcional PCOMA_ 
       {
-        if($5.tipo != T_LOGICO) yyerror("Condicion del for debe ser logica");
-      } CPAR_ instruccion
+        $<exp>$.ini = si;
+      }
+      expresion PCOMA_ 
       {
-        /* FALTA, EXACTAMENT NO SÉ A ON. CREC QUE EL PUC FER PERO MIRA'L, QUE NO ESTA FET!!!!!! */
+        if($6.tipo != T_LOGICO) yyerror("Condicion del for debe ser logica");
+        $<exp>$.lv = creaLans(si);
+        emite(EIGUAL, crArgPos($6.pos), crArgEnt(1), crArgEtq($<exp>$.lv));
+        $<exp>$.lf = creaLans(si);
+        emite(GOTOS, crArgNul(), crArgNul(), crArgEtq($<exp>$.lf));
+        $<exp>$.aux = si;
+      }
+      expresionOpcional CPAR_
+      {
+        emite(GOTOS,crArgNul(),crArgNul(),crArgEtq($<exp>5.ini));
+        completaLans($<exp>8.lv,crArgEtq(si));
+      }
+      instruccion
+      {
+        emite(GOTOS, crArgNul(), crArgNul(), crArgEtq($<exp>8.aux));
+        completaLans($<exp>8.lf,crArgEtq(si));
       }
       ;
 /*****************************************************************************/

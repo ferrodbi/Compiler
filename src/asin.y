@@ -182,9 +182,9 @@ instruccionAsignacion: ID_ IGU_ expresion PCOMA_
           if($3.tipo != T_ERROR)
             yyerror("Error de tipos en la asignacion");
         
-        $$.pos = creaVarTemp();
-        emite(EASIG, crArgPos($3.pos), crArgNul(), crArgPos($$.pos));
-        emite(EASIG, crArgPos($$.pos), crArgNul(), crArgPos(sim.desp));
+        //$$.pos = creaVarTemp();
+        //emite(EASIG, crArgPos($3.pos), crArgNul(), crArgPos($$.pos));
+        emite(EASIG, crArgPos($3.pos), crArgNul(), crArgPos(sim.desp));
       }
       | ID_ ACOR_ expresion CCOR_ IGU_ expresion PCOMA_
       {
@@ -206,16 +206,16 @@ instruccionAsignacion: ID_ IGU_ expresion PCOMA_
           }
         }
 
-        $$.pos = creaVarTemp();
-        emite(EASIG, crArgPos($6.pos), crArgNul(), crArgPos($$.pos));
-        emite(EVA, crArgPos(sim.desp), crArgPos($3.pos), crArgPos($$.pos));
+        //$$.pos = creaVarTemp();
+        //emite(EASIG, crArgPos($6.pos), crArgNul(), crArgPos($$.pos));
+        emite(EVA, crArgPos(sim.desp), crArgPos($3.pos), crArgPos($6.pos));
       }
       | ID_ PUNTO_ ID_ IGU_ expresion PCOMA_
       {
         SIMB sim = obtenerTDS($1);
+        REG reg;
         if(sim.tipo == T_ERROR) yyerror("Objeto no declarado");
         else {
-          REG reg;
           reg = obtenerInfoCampo(sim.ref, $3);
           if(reg.tipo == T_ERROR) yyerror("Campo no encontrado");
           else if(reg.tipo != $5.tipo) yyerror("Error de tipos en la asginacion");
@@ -223,6 +223,7 @@ instruccionAsignacion: ID_ IGU_ expresion PCOMA_
 
         /* FALTA!!!!!! */
         int aux_pos = sim.desp + reg.desp;
+        emite(EASIG,crArgPos(aux_pos),crArgNul(),crArgPos($5.pos));
         //emite(EASIG, crArgPos($$.pos), crArgNul(), crArgPos(aux_pos));
       }
       ;
@@ -237,7 +238,7 @@ instruccionEntradaSalida: READ_ APAR_ ID_ CPAR_ PCOMA_
         if(simb.tipo == T_ERROR) yyerror("Objeto no declarado");
         else if(simb.tipo != T_ENTERO) yyerror("Argumento de read debe ser entero");
         
-        emite(EREAD, crArgNul(), crArgNul(), crArgPos(sim.desp));
+        emite(EREAD, crArgNul(), crArgNul(), crArgPos(simb.desp));
       }
       | PRINT_ APAR_ expresion CPAR_ PCOMA_
       {
@@ -255,18 +256,18 @@ instruccionSeleccion: IF_ APAR_ expresion CPAR_
       {
         if($3.tipo != T_LOGICO && $3.tipo == T_VACIO) yyerror("Expresion no es tipo logico");
         
-        $<cte>$ = creaLans(si);
+        $<exp>$.lf = creaLans(si);
         emite(EIGUAL, crArgPos($3.pos), crArgEnt(0), crArgNul());
       }
       instruccion
       {
-        $<cte>$ = creaLans(si);
+        $<exp>$.fin = creaLans(si);
         emite(GOTOS, crArgNul(), crArgNul(), crArgNul());
-        completaLans($<cte>5, crArgEtq(si));
+        completaLans($<exp>5.lf, crArgEtq(si));
       }
       ELSE_ instruccion
       {
-        completaLans($<cte>7, crArgEtq(si));
+        completaLans($<exp>7.fin, crArgEtq(si));
       }
       ;
 /*****************************************************************************/
@@ -299,13 +300,15 @@ expresionOpcional: expresion
       }
       | ID_ IGU_ expresion
       {
+        SIMB simb;
         $$.tipo = $3.tipo;
-        if($3.tipo == T_ENTERO)
+        if($3.tipo == T_ENTERO){
           $$.valor = $3.valor;
+          simb = obtenerTDS($1);
+        }
 
         $$.pos = creaVarTemp();
-        emite(EASIG, crArgPos($3.pos), crArgNul(), crArgPos($$.pos));
-        emite(EASIG, crArgPos($$.pos), crArgNul(), crArgPos(sim.desp));
+        emite(EASIG, crArgPos($$.pos), crArgNul(), crArgPos(simb.desp));
       }
       |
       {
@@ -520,6 +523,7 @@ expresionUnaria: expresionSufija
           emite(EASIG, crArgEnt(1), crArgNul(), crArgPos($$.pos));
           emite(EIGUAL, crArgPos($2.pos), crArgEnt(0), crArgEtq(si+2));
           emite(EASIG, crArgEnt(0), crArgNul(), crArgPos($$.pos));
+        }
       }
       | operadorIncremento ID_
       {
@@ -585,8 +589,9 @@ expresionSufija: ID_
       | ID_ PUNTO_ ID_
       {
         SIMB sim = obtenerTDS($1);
+        REG reg;
         if(sim.tipo == T_RECORD) {
-          REG reg = obtenerInfoCampo(sim.ref, $3);
+          reg = obtenerInfoCampo(sim.ref, $3);
           if(reg.tipo == T_ERROR) {
             $$.tipo = T_ERROR;
             yyerror("Campo no declarado");
@@ -628,7 +633,7 @@ expresionSufija: ID_
         $$.valor = $1;
 
         $$.pos = creaVarTemp();
-        emite(EASIG, crArgEnt(yylval.cte), crArgNul(), crArgPos($$.pos));
+        emite(EASIG, crArgEnt(yylval.cent), crArgNul(), crArgPos($$.pos));
       }
       | TRUE_
       {

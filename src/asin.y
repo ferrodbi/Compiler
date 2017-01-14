@@ -11,7 +11,6 @@
   int tsimple;
   char *ident;
   int opuna;
-  //char opuna;
   structCampos campos;
   structExpresion exp;
 }
@@ -255,7 +254,6 @@ instruccionSeleccion: IF_ APAR_ expresion CPAR_
         if($3.tipo != T_LOGICO && $3.tipo == T_VACIO) yyerror("Expresion no es tipo logico");
         $<exp>$.lf = creaLans(si);
         emite(EIGUAL, crArgPos($3.pos), crArgEnt(0), crArgEtq($<exp>$.lf));
-        //orden en los emites puede ser (arg,3,2,1)
       }
       instruccion
       {
@@ -307,10 +305,6 @@ expresionOpcional: expresion
         $$.tipo = $1.tipo;
         if($1.tipo == T_ENTERO)
           $$.valor = $1.valor;
-        
-        /* FALTA. MIRAR ALTRES EXPRESIONS, PERQUE CREC QUE ES IGUAL QUE expresion: expresionIgualdad, etc.!!!!!! */
-        //$$.pos = creaVarTemp();
-        //emite(EASIG, crArgPos($1.pos), crArgNul(), crArgPos($$.pos));
       }
       | ID_ IGU_ expresion
       {
@@ -320,13 +314,11 @@ expresionOpcional: expresion
           //$$.valor = $3.valor;
           simb = obtenerTDS($1);
         }
-        error
-        //emite(EASIG, crArgPos($3.pos), crArgNul(), crArgPos(simb.desp));
+        //error
+        emite(EASIG, crArgPos($3.pos), crArgNul(), crArgPos(simb.desp));
         //emite(EASIG, crArgPos(simb.desp), crArgNul(), crArgPos($3.pos));
-        //puede eliminarse el emite?? NO SE PUEDE
-
-
-     
+        //puede eliminarse el emite?? 
+        //emite(EASIG, crArgPos($3.pos),crArgNul(),crArgPos($$.pos));
       }
       |
       {
@@ -343,9 +335,6 @@ expresion: expresionIgualdad
         $$.tipo = $1.tipo;
         if($1.tipo == T_ENTERO)
           $$.valor = $1.valor;
-
-        //$$.pos = creaVarTemp();
-        //emite(EASIG, crArgPos($1.pos), crArgNul(), crArgPos($$.pos));
       }
       | expresion operadorLogico expresionIgualdad
       {
@@ -390,9 +379,6 @@ expresionIgualdad: expresionRelacional
         $$.tipo = $1.tipo;
         if($1.tipo == T_ENTERO)
           $$.valor = $1.valor;
-
-        //$$.pos = creaVarTemp();
-        //(EASIG, crArgPos($1.pos), crArgNul(), crArgPos($$.pos));
       }
       | expresionIgualdad operadorIgualdad expresionRelacional
       {
@@ -419,9 +405,6 @@ expresionRelacional: expresionAditiva
       {
         /* JUST LA LINEA DE BAIX ESTA COM EXEMPLE DE LA PART 3, PERO LES ALTRES LES TENIM DIFERENT, MIRAR!!!!!! */
         $$ = $1;
-
-       // $$.pos = creaVarTemp();
-        //emite(EASIG, crArgPos($1.pos), crArgNul(), crArgPos($$.pos));
       }
       | expresionRelacional operadorRelacional expresionAditiva
       {
@@ -458,9 +441,6 @@ expresionAditiva: expresionMultiplicativa
         $$.tipo = $1.tipo;
         if($1.tipo == T_ENTERO)
           $$.valor = $1.valor;
-
-        //$$.pos = creaVarTemp();
-        //emite(EASIG, crArgPos($1.pos), crArgNul(), crArgPos($$.pos));
       }
       | expresionAditiva operadorAditivo expresionMultiplicativa
       {
@@ -490,9 +470,6 @@ expresionMultiplicativa: expresionUnaria
         $$.tipo = $1.tipo;
         if($1.tipo == T_ENTERO)
           $$.valor = $1.valor;
-
-        //$$.pos = creaVarTemp();
-        //emite(EASIG, crArgPos($1.pos), crArgNul(), crArgPos($$.pos));
       }
       | expresionMultiplicativa operadorMultiplicativo expresionUnaria
       {
@@ -520,9 +497,6 @@ expresionUnaria: expresionSufija
         $$.tipo = $1.tipo;
         if($1.tipo == T_ENTERO)
           $$.valor = $1.valor;
-
-        //$$.pos = creaVarTemp();
-        //emite(EASIG, crArgPos($1.pos), crArgNul(), crArgPos($$.pos));
       }
       | operadorUnario expresionUnaria
       { 
@@ -602,11 +576,7 @@ expresionSufija: ID_
           }
           else
             $$.tipo = dim.telem;
-          //$$.pos = creaVarTemp();
-          //emite(EAV, crArgPos(sim.desp), crArgPos($3.pos), crArgPos($$.pos));
-
-        //$$.pos = creaVarTemp();
-        //emite(EASIG, crArgPos($6.pos), crArgNul(), crArgPos($$.pos));
+          
         emite(EASIG,crArgPos($3.pos), crArgNul(), crArgEnt($3.pos*TALLA_TIPO_SIMPLE));
         $$.pos = creaVarTemp();
         emite(EVA, crArgPos($$.pos), crArgPos(sim.desp), crArgPos($3.pos));
@@ -628,8 +598,6 @@ expresionSufija: ID_
           $$.tipo = T_ERROR;
           yyerror("El identificador debe ser struct");
         }
-
-        /* ESTE NO SE SI ESTA BE. MIRAR!!!!!! */
         int aux_pos = sim.desp + reg.desp;
         $$.pos = creaVarTemp();
         emite(EASIG, crArgPos(aux_pos), crArgNul(), crArgPos($$.pos));
@@ -638,8 +606,7 @@ expresionSufija: ID_
       {
         $$.tipo = $2.tipo;
         $$.pos = $2.pos;
-        //$$.pos = creaVarTemp();
-        //emite(EASIG, crArgPos($2.pos), crArgNul(), crArgPos($$.pos));
+      
       }
       | ID_ operadorIncremento
       {
@@ -761,18 +728,15 @@ operadorMultiplicativo: PROD_
 /*****************************************************************************/
 operadorUnario: MAS_
       {
-        //$$ = '+';
-        $$ = OPPOS;
+        $$ = OPPOS; //+
       }
       | MENOS_
       {
-        //$$ = '-';
-        $$ = OPNEG;
+        $$ = OPNEG; //-
       }
       | EXCL_
       {
-        //$$ = '!';
-        $$ = OPNOT;
+        $$ = OPNOT; //!
       }
       ;
 /*****************************************************************************/

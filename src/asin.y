@@ -181,10 +181,12 @@ instruccionAsignacion: ID_ IGU_ expresion PCOMA_
         else if(!((sim.tipo == $3.tipo == T_ENTERO) || (sim.tipo == $3.tipo == T_LOGICO)))
           if($3.tipo != T_ERROR)
             yyerror("Error de tipos en la asignacion");
-        
-        //$$.pos = creaVarTemp();
-        //emite(EASIG, crArgPos($3.pos), crArgNul(), crArgPos($$.pos));
         emite(EASIG, crArgPos($3.pos), crArgNul(), crArgPos(sim.desp));
+        
+        //$<exp>$.pos = creaVarTemp();
+        //emite(EASIG, crArgPos($3.pos), crArgNul(), crArgPos($<exp>$.pos));
+       
+       
       }
       | ID_ ACOR_ expresion CCOR_ IGU_ expresion PCOMA_
       {
@@ -323,7 +325,7 @@ expresionOpcional: expresion
         }
 
         $$.pos = creaVarTemp();
-        emite(EASIG, crArgPos($$.pos), crArgNul(), crArgPos(simb.desp));
+        emite(EASIG, crArgPos($3.pos), crArgNul(), crArgPos(simb.desp));
       }
       |
       {
@@ -596,9 +598,8 @@ expresionSufija: ID_
           }
           else
             $$.tipo = dim.telem;
-
-         // $$.pos = creaVarTemp();
-         // emite(EAV, crArgPos(sim.desp), crArgPos($3.pos), crArgPos($$.pos));
+          //$$.pos = creaVarTemp();
+          //emite(EAV, crArgPos(sim.desp), crArgPos($3.pos), crArgPos($$.pos));
 
         //$$.pos = creaVarTemp();
         //emite(EASIG, crArgPos($6.pos), crArgNul(), crArgPos($$.pos));

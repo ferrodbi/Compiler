@@ -205,9 +205,9 @@ instruccionAsignacion: ID_ IGU_ expresion PCOMA_
             else if(dim.telem != $6.tipo) yyerror("Tipo del array no coincide");
           }
         }
-
         //$$.pos = creaVarTemp();
         //emite(EASIG, crArgPos($6.pos), crArgNul(), crArgPos($$.pos));
+        emite(EASIG,crArgPos($3.pos), crArgNul(), crArgEnt($3.pos*TALLA_TIPO_SIMPLE));
         emite(EVA, crArgPos(sim.desp), crArgPos($3.pos), crArgPos($6.pos));
       }
       | ID_ PUNTO_ ID_ IGU_ expresion PCOMA_
@@ -597,8 +597,14 @@ expresionSufija: ID_
           else
             $$.tipo = dim.telem;
 
-          $$.pos = creaVarTemp();
-          emite(EAV, crArgPos(sim.desp), crArgPos($3.pos), crArgPos($$.pos));
+         // $$.pos = creaVarTemp();
+         // emite(EAV, crArgPos(sim.desp), crArgPos($3.pos), crArgPos($$.pos));
+
+        //$$.pos = creaVarTemp();
+        //emite(EASIG, crArgPos($6.pos), crArgNul(), crArgPos($$.pos));
+        emite(EASIG,crArgPos($3.pos), crArgNul(), crArgEnt($3.pos*TALLA_TIPO_SIMPLE));
+        $$.pos = creaVarTemp();
+        emite(EVA, crArgPos($$.pos), crArgPos(sim.desp), crArgPos($3.pos));
         }
       }
       | ID_ PUNTO_ ID_

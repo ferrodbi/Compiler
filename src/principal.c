@@ -21,6 +21,7 @@ void yyerror(const char * msg)
 int main (int argc, char **argv)
 /* Gestiona la linea de comandos e invoca al analizador sintactico-semantico.*/
 { 
+  char *nom_fich;
   int i, n = 0;
 
   for(i = 0; i < argc; ++i) {
@@ -33,17 +34,20 @@ int main (int argc, char **argv)
       n++;
     }
   }
+
   --argc;
   n++;
+  
   if(argc == n) {
     if((yyin = fopen(argv[argc], "r")) == NULL)
       fprintf(stderr, "Fichero no valido %s\n", argv[argc]);
     else {        
       if(verbosidad == TRUE)
         fprintf(stdout, "%3d.- ", yylineno);
+      nom_fich = argv[argc];
       yyparse();
-      if(numErrores > 0) 
-        fprintf(stdout, "\nNumero de errores:      %d\n", numErrores);
+      if (numErrores == 0) volcarCodigo(nom_fich);
+      else fprintf(stdout,"\nNumero de errores:      %d\n", numErrores);
       if(verTDS) mostrarTDS();
     }   
   }

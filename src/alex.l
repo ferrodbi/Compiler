@@ -5,60 +5,63 @@
 #include "asin.h"
 %}
 
-/* Subseccion de definiciones TERMINALES_*/
-%option yylineno 
+/* Subseccion de definiciones terminales */
+%option yylineno
 delimitador [ \t]+
-letra [a-zA-Z\_] 
+letra [a-zA-Z\_]
 digito [0-9]
 comentario "//"[^\n]*"\n"
+
 %%
-{delimitador}     			{ECHO;}
-"\n"                        {ECHO;if(verbosidad)printf("%3d-",yylineno);}
-{comentario}				{ECHO;if(verbosidad)printf("%3d-",yylineno);}
-if                          {ECHO;return (IF_);}
-else						{ECHO;return (ELSE_);}
-for                         {ECHO;return (FOR_);}
-read 						{ECHO;return (READ_);}
-print                 		{ECHO;return (PRINT_);}
-true						{ECHO;return (TRUE_);}
-false						{ECHO;return (FALSE_);}
+{delimitador}   {ECHO;}
+"\n"            {ECHO; if(verbosidad) printf("%3d-", yylineno);}
+{comentario}    {ECHO; if(verbosidad) printf("%3d-", yylineno);}
 
-"int"						{ECHO;return (INT_);}
-"bool"						{ECHO;return (BOOL_);}
-"struct"					{ECHO;return (STRUCT_);}
-"."							{ECHO;return (PUNTO_);}
-";"							{ECHO;return (PCOMA_);}
+if              {ECHO; return(IF_);}
+else            {ECHO; return(ELSE_);}
+for             {ECHO; return(FOR_);}
+read            {ECHO; return(READ_);}
+print           {ECHO; return(PRINT_);}
+true            {ECHO; return(TRUE_);}
+false           {ECHO; return(FALSE_);}
 
-"+"                         {ECHO;return (MAS_);}
-"-"                         {ECHO;return (MENOS_);}
+"int"           {ECHO; return(INT_);}
+"bool"          {ECHO; return(BOOL_);}
+"struct"        {ECHO; return(STRUCT_);}
+"."             {ECHO; return(PUNTO_);}
+";"             {ECHO; return(PCOMA_);}
 
-"*"                         {ECHO;return (PROD_);}
-"/"                         {ECHO;return (DIV_);}
+"+"             {ECHO; return(MAS_);}
+"-"             {ECHO; return(MENOS_);}
 
-"++"                        {ECHO;return (MASMAS_);}
-"--"                        {ECHO;return (MENOSMENOS_);}
-"!"                         {ECHO;return (EXCL_);}
+"*"             {ECHO; return(PROD_);}
+"/"             {ECHO; return(DIV_);}
 
-"&&"                        {ECHO;return (ANDAND_);}
-"||"                        {ECHO;return (OROR_);}
+"++"            {ECHO; return(MASMAS_);}
+"--"            {ECHO; return(MENOSMENOS_);}
+"!"             {ECHO; return(EXCL_);}
 
-"="							{ECHO;return (IGU_);}
-"=="                        {ECHO;return (IGUIGU_);}
-"!="                        {ECHO;return (NOTIGU_);}
+"&&"            {ECHO; return(ANDAND_);}
+"||"            {ECHO; return(OROR_);}
 
-">"                         {ECHO;return (MAY_);} 
-"<"                         {ECHO;return (MENOR_);}
-">="                        {ECHO;return (MAYIGU_);}
-"<="                        {ECHO;return (MENIGU_);}
+"="             {ECHO; return(IGU_);}
+"=="            {ECHO; return(IGUIGU_);}
+"!="            {ECHO; return(NOTIGU_);}
 
-"{"							{ECHO;return (ALLA_);}
-"("							{ECHO;return (APAR_);}
-"["							{ECHO;return (ACOR_);}
-"}"							{ECHO;return (CLLA_);}
-")"							{ECHO;return (CPAR_);}
-"]"							{ECHO;return (CCOR_);}
-({digito}*"."{digito}+)|{digito}+"."{digito}*	{ECHO;yylval.cent = atoi(yytext); return (CTE_);}
-{digito}+                  	{ECHO;yylval.cent = atoi(yytext); return (CTE_);}
-{letra}({letra}|{digito})*  {ECHO;yylval.ident = strdup(yytext); return (ID_);}
-.                           {ECHO;yyerror("Caracter desconocido");}
+">"             {ECHO; return(MAY_);}
+"<"             {ECHO; return(MENOR_);}
+">="            {ECHO; return(MAYIGU_);}
+"<="            {ECHO; return(MENIGU_);}
+
+"{"             {ECHO; return(ALLA_);}
+"("             {ECHO; return(APAR_);}
+"["             {ECHO; return(ACOR_);}
+"}"             {ECHO; return(CLLA_);}
+")"             {ECHO; return(CPAR_);}
+"]"             {ECHO; return(CCOR_);}
+
+({digito}*"."{digito}+)|{digito}+"."{digito}*   {ECHO; yylval.cent = atoi(yytext); return(CTE_);}
+{digito}+                                       {ECHO; yylval.cent = atoi(yytext); return(CTE_);}
+{letra}({letra}|{digito})*                      {ECHO; yylval.ident = strdup(yytext); return(ID_);}
+.                                               {ECHO; yyerror("Caracter desconocido");}
 %%

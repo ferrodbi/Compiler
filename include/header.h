@@ -25,16 +25,19 @@ typedef struct c {
 
 typedef struct d {
   int tipo;
-  int valor;
+  //int valor;
   int pos;
+} structExpresion;
+
+typedef struct e {
   int ini;
   int fin;
   int lv;
   int lf;
   int aux;
-} structExpresion;
+} struct3D;
 
-typedef struct e {
+typedef struct f {
   int tipo;
 } structTipoUnario;
 

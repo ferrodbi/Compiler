@@ -204,7 +204,6 @@ instruccionAsignacion: ID_ IGU_ expresion PCOMA_
           }
         }
         // deberia emitirse un emult con la talla del tipo pero como es 1 no es necesario
-        //emite(EASIG,crArgPos($3.pos), crArgNul(), crArgPos($3.pos));
         emite(EVA, crArgPos(sim.desp), crArgPos($3.pos), crArgPos($6.pos));
       }
       | ID_ PUNTO_ ID_ IGU_ expresion PCOMA_
@@ -322,9 +321,6 @@ expresionOpcional:
         $$.pos = $3.pos;
       }
         emite(EASIG, crArgPos($3.pos), crArgNul(), crArgPos(simb.desp));
-        //emite(EASIG, crArgPos(simb.desp), crArgNul(), crArgPos($3.pos));
-        //puede eliminarse el emite?? 
-        //emite(EASIG, crArgPos($3.pos),crArgNul(),crArgPos($$.pos));
       }
       ;
 /*****************************************************************************/
@@ -350,18 +346,16 @@ expresion: expresionIgualdad
             $$.tipo = T_ERROR;
             //yyerror("Error en expresion");
           }
-          //$$.tipo = T_ERROR;
         }
 
         $$.pos = creaVarTemp();
         if($2 == OPANDAND) {
-           emite(EMULT, crArgPos($1.pos), crArgPos($3.pos),crArgPos($$.pos));
-                     
-           //emite(EASIG, crArgEnt(0), crArgNul(), crArgPos($$.pos));
-           //emite(EIGUAL, crArgPos($1.pos), crArgEnt(0), crArgEtq(si+3));
-           //emite(EIGUAL, crArgPos($3.pos), crArgEnt(0), crArgEtq(si+2));
-           //emite(EASIG, crArgEnt(1), crArgNul(), crArgPos($$.pos));
-          
+          emite(EMULT, crArgPos($1.pos), crArgPos($3.pos),crArgPos($$.pos));
+          // This is the longer version
+          //emite(EASIG, crArgEnt(0), crArgNul(), crArgPos($$.pos));
+          //emite(EIGUAL, crArgPos($1.pos), crArgEnt(0), crArgEtq(si+3));
+          //emite(EIGUAL, crArgPos($3.pos), crArgEnt(0), crArgEtq(si+2));
+          //emite(EASIG, crArgEnt(1), crArgNul(), crArgPos($$.pos));
         }
         else {
           emite(EASIG, crArgEnt(1), crArgNul(), crArgPos($$.pos));
@@ -575,8 +569,7 @@ expresionSufija: ID_
           }
           else
             $$.tipo = dim.telem;
-          
-        //emite(EASIG,crArgPos($3.pos), crArgNul(), crArgEnt($3.pos));
+        // Al igual que abans deuria multiplicarse la talla per el contingut de $3.pos pero com es 1 no fa falta
         $$.pos = creaVarTemp();
         emite(EAV, crArgPos(sim.desp), crArgPos($3.pos), crArgPos($$.pos));
         }
@@ -622,8 +615,6 @@ expresionSufija: ID_
       | CTE_
       {
         $$.tipo = T_ENTERO;
-        //$$.valor = $1;
-
         $$.pos = creaVarTemp();
         emite(EASIG, crArgEnt($1), crArgNul(), crArgPos($$.pos));
       }

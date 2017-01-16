@@ -13,6 +13,7 @@
   int opuna;
   structCampos campos;
   structExpresion exp;
+  struct3D e3d;
 }
 
 
@@ -197,16 +198,13 @@ instruccionAsignacion: ID_ IGU_ expresion PCOMA_
           if(sim.tipo == T_ERROR) yyerror("Objeto no declarado");
           else if(sim.tipo != T_ARRAY) yyerror("Tipo incorrecto");
           else if($3.tipo != T_ENTERO) yyerror("Indice no entero");
-          else if($3.valor < 0 || $3.valor >= dim.nelem) {
-            //yyerror("Indice del array incorrecto");
-          }
           if($6.tipo != T_ERROR) {
             if(dim.telem == T_ERROR) yyerror("Array no declarado");
             else if(dim.telem != $6.tipo) yyerror("Tipo del array no coincide");
           }
         }
-        emite(EASIG,crArgPos($3.pos*TALLA_TIPO_SIMPLE), crArgNul(), crArgPos($3.pos));
-        //emite(EASIG,crArgPos($3.pos), crArgNul(), crArgEnt($3.pos*TALLA_TIPO_SIMPLE));
+        // deberia emitirse un emult con la talla del tipo pero como es 1 no es necesario
+        //emite(EASIG,crArgPos($3.pos), crArgNul(), crArgPos($3.pos));
         emite(EVA, crArgPos(sim.desp), crArgPos($3.pos), crArgPos($6.pos));
       }
       | ID_ PUNTO_ ID_ IGU_ expresion PCOMA_
@@ -252,18 +250,18 @@ instruccionEntradaSalida: READ_ APAR_ ID_ CPAR_ PCOMA_
 instruccionSeleccion: IF_ APAR_ expresion CPAR_
       {
         if($3.tipo != T_LOGICO && $3.tipo == T_VACIO) yyerror("Expresion no es tipo logico");
-        $<exp>$.lf = creaLans(si);
-        emite(EIGUAL, crArgPos($3.pos), crArgEnt(0), crArgEtq($<exp>$.lf));
+        $<e3d>$.lf = creaLans(si);
+        emite(EIGUAL, crArgPos($3.pos), crArgEnt(0), crArgEtq($<e3d>$.lf));
       }
       instruccion
       {
-        $<exp>$.fin = creaLans(si);
-        emite(GOTOS, crArgNul(), crArgNul(), crArgEtq($<exp>$.fin));
-        completaLans($<exp>5.lf, crArgEtq(si));
+        $<e3d>$.fin = creaLans(si);
+        emite(GOTOS, crArgNul(), crArgNul(), crArgEtq($<e3d>$.fin));
+        completaLans($<e3d>5.lf, crArgEtq(si));
       }
       ELSE_ instruccion
       {
-        completaLans($<exp>7.fin, crArgEtq(si));
+        completaLans($<e3d>7.fin, crArgEtq(si));
       }
       ;
 /*****************************************************************************/
@@ -273,26 +271,26 @@ instruccionSeleccion: IF_ APAR_ expresion CPAR_
 /*****************************************************************************/
 instruccionIteracion: FOR_ APAR_ expresionOpcional PCOMA_ 
       {
-        $<exp>$.ini = si;
+        $<e3d>$.ini = si;
       }
       expresion PCOMA_ 
       {
         if($6.tipo != T_LOGICO) yyerror("Condicion del for debe ser logica");
-        $<exp>$.lv = creaLans(si);
-        emite(EIGUAL, crArgPos($6.pos), crArgEnt(1), crArgEtq($<exp>$.lv));
-        $<exp>$.lf = creaLans(si);
-        emite(GOTOS, crArgNul(), crArgNul(), crArgEtq($<exp>$.lf));
-        $<exp>$.aux = si;
+        $<e3d>$.lv = creaLans(si);
+        emite(EIGUAL, crArgPos($6.pos), crArgEnt(1), crArgEtq(-1));
+        $<e3d>$.lf = creaLans(si);
+        emite(GOTOS, crArgNul(), crArgNul(), crArgEtq(-1));
+        $<e3d>$.aux = si;
       }
       expresionOpcional CPAR_
       {
-        emite(GOTOS,crArgNul(),crArgNul(),crArgEtq($<exp>5.ini));
-        completaLans($<exp>8.lv,crArgEtq(si));
+        emite(GOTOS,crArgNul(),crArgNul(),crArgEtq($<e3d>5.ini));
+        completaLans($<e3d>8.lv,crArgEtq(si));
       }
       instruccion
       {
-        emite(GOTOS, crArgNul(), crArgNul(), crArgEtq($<exp>8.aux));
-        completaLans($<exp>8.lf,crArgEtq(si));
+        emite(GOTOS, crArgNul(), crArgNul(), crArgEtq($<e3d>8.aux));
+        completaLans($<e3d>8.lf,crArgEtq(si));
       }
       ;
 /*****************************************************************************/
@@ -300,29 +298,33 @@ instruccionIteracion: FOR_ APAR_ expresionOpcional PCOMA_
 
 
 /*****************************************************************************/
-expresionOpcional: expresion
+expresionOpcional:
+      
+      {
+        $$.tipo = T_VACIO;
+      }
+      |   
+
+      expresion
       {
         $$.tipo = $1.tipo;
-        if($1.tipo == T_ENTERO)
-          $$.valor = $1.valor;
+        $$.pos = $1.pos;
       }
       | ID_ IGU_ expresion
       {
-        SIMB simb;
+      SIMB simb= obtenerTDS($1);
+      if($3.tipo != simb.tipo){
+        yyerror("tipo diferente en asignacion");      
+      } else if ($3.tipo == T_ERROR) {
+        $$.tipo == T_ERROR;
+      } else {
         $$.tipo = $3.tipo;
-        if($3.tipo == T_ENTERO){
-          //$$.valor = $3.valor;
-          simb = obtenerTDS($1);
-        }
-        //error
+        $$.pos = $3.pos;
+      }
         emite(EASIG, crArgPos($3.pos), crArgNul(), crArgPos(simb.desp));
         //emite(EASIG, crArgPos(simb.desp), crArgNul(), crArgPos($3.pos));
         //puede eliminarse el emite?? 
         //emite(EASIG, crArgPos($3.pos),crArgNul(),crArgPos($$.pos));
-      }
-      |
-      {
-        $$.tipo = T_VACIO;
       }
       ;
 /*****************************************************************************/
@@ -333,8 +335,8 @@ expresionOpcional: expresion
 expresion: expresionIgualdad
       {
         $$.tipo = $1.tipo;
-        if($1.tipo == T_ENTERO)
-          $$.valor = $1.valor;
+        $$.pos = $1.pos;
+
       }
       | expresion operadorLogico expresionIgualdad
       {
@@ -377,8 +379,7 @@ expresion: expresionIgualdad
 expresionIgualdad: expresionRelacional
       {
         $$.tipo = $1.tipo;
-        if($1.tipo == T_ENTERO)
-          $$.valor = $1.valor;
+        $$.pos = $1.pos;
       }
       | expresionIgualdad operadorIgualdad expresionRelacional
       {
@@ -403,8 +404,8 @@ expresionIgualdad: expresionRelacional
 /*****************************************************************************/
 expresionRelacional: expresionAditiva
       {
-        /* JUST LA LINEA DE BAIX ESTA COM EXEMPLE DE LA PART 3, PERO LES ALTRES LES TENIM DIFERENT, MIRAR!!!!!! */
-        $$ = $1;
+        $$.tipo = $1.tipo;
+        $$.pos = $1.pos;
       }
       | expresionRelacional operadorRelacional expresionAditiva
       {
@@ -439,8 +440,7 @@ expresionRelacional: expresionAditiva
 expresionAditiva: expresionMultiplicativa
       {
         $$.tipo = $1.tipo;
-        if($1.tipo == T_ENTERO)
-          $$.valor = $1.valor;
+        $$.pos = $1.pos;
       }
       | expresionAditiva operadorAditivo expresionMultiplicativa
       {
@@ -468,8 +468,7 @@ expresionAditiva: expresionMultiplicativa
 expresionMultiplicativa: expresionUnaria
       {
         $$.tipo = $1.tipo;
-        if($1.tipo == T_ENTERO)
-          $$.valor = $1.valor;
+        $$.pos = $1.pos;
       }
       | expresionMultiplicativa operadorMultiplicativo expresionUnaria
       {
@@ -495,8 +494,7 @@ expresionMultiplicativa: expresionUnaria
 expresionUnaria: expresionSufija
       { 
         $$.tipo = $1.tipo;
-        if($1.tipo == T_ENTERO)
-          $$.valor = $1.valor;
+        $$.pos = $1.pos;
       }
       | operadorUnario expresionUnaria
       { 
@@ -566,20 +564,21 @@ expresionSufija: ID_
         }
         else {
           dim = obtenerInfoArray(sim.ref);
-          if($3.valor < 0 || $3.valor >= dim.nelem) {
+          /*if($3.pos < 0 || $3.pos >= dim.nelem) {
             $$.tipo = T_ERROR;
             //yyerror("Indice del array incorrecto");
           }
-          else if(dim.telem == T_ERROR) {
+          else*/
+          if(dim.telem == T_ERROR) {
             yyerror("Array no declarado");
             $$.tipo = T_ERROR;
           }
           else
             $$.tipo = dim.telem;
           
-        emite(EASIG,crArgPos($3.pos), crArgNul(), crArgEnt($3.pos*TALLA_TIPO_SIMPLE));
+        //emite(EASIG,crArgPos($3.pos), crArgNul(), crArgEnt($3.pos));
         $$.pos = creaVarTemp();
-        emite(EVA, crArgPos($$.pos), crArgPos(sim.desp), crArgPos($3.pos));
+        emite(EAV, crArgPos(sim.desp), crArgPos($3.pos), crArgPos($$.pos));
         }
       }
       | ID_ PUNTO_ ID_
@@ -626,7 +625,7 @@ expresionSufija: ID_
         //$$.valor = $1;
 
         $$.pos = creaVarTemp();
-        emite(EASIG, crArgEnt(yylval.cent), crArgNul(), crArgPos($$.pos));
+        emite(EASIG, crArgEnt($1), crArgNul(), crArgPos($$.pos));
       }
       | TRUE_
       {

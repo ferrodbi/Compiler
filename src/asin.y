@@ -55,7 +55,7 @@
 /*****************************************************************************/
 programa: ALLA_ secuenciaSentencias CLLA_
       {
-        emite(FIN,crArgNul(),crArgNul(),crArgNul());
+        emite(FIN, crArgNul(), crArgNul(), crArgNul());
       }
       ;
 /*****************************************************************************/
@@ -144,7 +144,7 @@ listaCampos: tipoSimple ID_ PCOMA_
         }
       }
       | listaCampos tipoSimple ID_ PCOMA_
-      { 
+      {
         int ref = insertaCampo($1.refe, $3, $2, $1.talla);
         if(ref < 0) {
           yyerror("Nombre repetido en el registro");
@@ -218,7 +218,7 @@ instruccionAsignacion: ID_ IGU_ expresion PCOMA_
         }
 
         $<exp>$.pos = sim.desp + reg.desp;
-        emite(EASIG,crArgPos($5.pos),crArgNul(),crArgPos($<exp>$.pos));
+        emite(EASIG, crArgPos($5.pos), crArgNul(), crArgPos($<exp>$.pos));
       }
       ;
 /*****************************************************************************/
@@ -298,7 +298,7 @@ instruccionIteracion: FOR_ APAR_ expresionOpcional PCOMA_
 
 /*****************************************************************************/
 expresionOpcional:
-      
+  
       {
         $$.tipo = T_VACIO;
       }

@@ -17,31 +17,7 @@ extern int verbosidad;              /* Flag para saber si se desea una traza */
 extern int numErrores;              /* Contador del numero de errores        */
 /*************************************************** Constantes tallas tipos */
 #define TALLA_TIPO_SIMPLE 1
-
-typedef struct c {
-  int refe;
-  int talla;
-} structCampos;
-
-typedef struct d {
-  int tipo;
-  //int valor;
-  int pos;
-} structExpresion;
-
-typedef struct e {
-  int ini;
-  int fin;
-  int lv;
-  int lf;
-  int aux;
-} struct3D;
-
-typedef struct f {
-  int tipo;
-} structTipoUnario;
-
-// Identificadores de operadores
+/********************************************* Identificadores de operadores */
 #define OPANDAND 0
 #define OPOROR   1
 #define OPIGIG   2
@@ -59,13 +35,29 @@ typedef struct f {
 #define OPNOT    14
 #define OPMASMAS 15
 #define OPMENMEN 16
-
-// Constantes para el tipo de instrucciones 3D
+/******************************** Constantes para el tipo de instrucciones 3D*/
 #define ARG_ENTERO 0
 #define ARG_POSICION 1
 #define ARG_ETIQUIETA 2
 #define ARG_NULO 3
 
+typedef struct c {
+  int refe;
+  int talla;
+} structCampos;
+
+typedef struct d {
+  int tipo;
+  int pos;
+} structExpresion;
+
+typedef struct e {
+  int ini;
+  int fin;
+  int lv;
+  int lf;
+  int aux;
+} struct3D;
 
 // Declaracion de funciones para eliminar warnings
 int yylex();

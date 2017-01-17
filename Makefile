@@ -6,7 +6,7 @@
 CC_OPTIONS = -pedantic
 CC_LIBRARY = -lfl -ltds -lgci
 CC_LINKS_FLAGS = $(CC_LIBRARY) $(CC_OPTIONS)
-OBJECTS = ./alex.o  ./asin.o ./principal.o
+OBJECTS = ./alex.o ./asin.o ./principal.o
 
 cmc:	$(OBJECTS) ./lib/libtds.a ./lib/libgci.a
 	gcc -o cmc $(OBJECTS) -L./lib -I./include $(CC_LINKS_FLAGS)

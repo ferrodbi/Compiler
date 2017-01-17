@@ -181,7 +181,7 @@ listaInstrucciones:
 
 
 /*****************************************************************************/
-instruccionAsignacion: ID_ IGU_ expresion PCOMA_
+instruccionAsignacion: ID_ operadorAsignacion expresion PCOMA_
       {
         SIMB sim = obtenerTDS($1);
         if(sim.tipo == T_ERROR) yyerror("Objeto no declarado");
@@ -189,9 +189,14 @@ instruccionAsignacion: ID_ IGU_ expresion PCOMA_
           if($3.tipo != T_ERROR)
             yyerror("Error de tipos en la asignacion");
 
-        emite(EASIG, crArgPos($3.pos), crArgNul(), crArgPos(sim.desp));    
+        if($2 == OPIGU)
+          emite(EASIG, crArgPos($3.pos), crArgNul(), crArgPos(sim.desp));
+        else if($2 == OPSUMIGU)
+          emite(ESUM, crArgPos(sim.desp), crArgEnt($3.pos), crArgPos(sim.desp));
+        else
+          emite(EDIF, crArgPos(sim.desp), crArgPos($3.pos), crArgPos(sim.desp));
       }
-      | ID_ ACOR_ expresion CCOR_ IGU_ expresion PCOMA_
+      | ID_ ACOR_ expresion CCOR_ operadorAsignacion expresion PCOMA_
       {
         SIMB sim = obtenerTDS($1);
         if(sim.tipo != T_ARRAY) {
@@ -207,11 +212,24 @@ instruccionAsignacion: ID_ IGU_ expresion PCOMA_
             else if(dim.telem != $6.tipo) yyerror("Tipo del array no coincide");
           }
         }
+        // FALTA POR IMPLEMENTAR
 
+        //$$.pos = creaVarTemp();
+
+        //if($5 == OPIGU)
+          //emite(EASIG, crArgPos($6.pos), crArgNul(), crArgPos($$.pos));
+        //else if($5 == OPSUMIGU) {
+          //emite(EAV, crArgPos(sim.desp), crArgPos($3.pos), crArgPos($$.pos));
+          //emite(ESUM, crArgPos($$.pos), crArgPos($6.pos), crArgPos($$.pos));
+        //}
+        //else {
+          //emite(EAV, crArgPos(sim.desp), crArgPos($3.pos), crArgPos($$.pos));
+          //emite(EDIF, crArgPos($$.pos), crArgPos($6.pos), crArgPos($$.pos));
+        //}
         // deberia emitirse un emult con la talla del tipo pero como es 1 no es necesario
         emite(EVA, crArgPos(sim.desp), crArgPos($3.pos), crArgPos($6.pos));
       }
-      | ID_ PUNTO_ ID_ IGU_ expresion PCOMA_
+      | ID_ PUNTO_ ID_ operadorAsignacion expresion PCOMA_
       {
         SIMB sim = obtenerTDS($1);
         REG reg;
@@ -222,6 +240,7 @@ instruccionAsignacion: ID_ IGU_ expresion PCOMA_
           else if(reg.tipo != $5.tipo) yyerror("Error de tipos en la asginacion");
         }
 
+        // AQUI FALTA EL += Y EL -=, SERA PARECIDO A LOS DOS DE ARRIBA
         $<exp>$.pos = sim.desp + reg.desp;
         emite(EASIG, crArgPos($5.pos), crArgNul(), crArgPos($<exp>$.pos));
       }
@@ -233,11 +252,11 @@ instruccionAsignacion: ID_ IGU_ expresion PCOMA_
 /*****************************************************************************/
 instruccionEntradaSalida: READ_ APAR_ ID_ CPAR_ PCOMA_
       {
-        SIMB simb = obtenerTDS($3);
-        if(simb.tipo == T_ERROR) yyerror("Objeto no declarado");
-        else if(simb.tipo != T_ENTERO) yyerror("Argumento de read debe ser entero");
+        SIMB sim = obtenerTDS($3);
+        if(sim.tipo == T_ERROR) yyerror("Objeto no declarado");
+        else if(sim.tipo != T_ENTERO) yyerror("Argumento de read debe ser entero");
 
-        emite(EREAD, crArgNul(), crArgNul(), crArgPos(simb.desp));
+        emite(EREAD, crArgNul(), crArgNul(), crArgPos(sim.desp));
       }
       | PRINT_ APAR_ expresion CPAR_ PCOMA_
       {
@@ -274,7 +293,7 @@ instruccionSeleccion: IF_ APAR_ expresion CPAR_
 
 
 /*****************************************************************************/
-instruccionIteracion:
+instruccionWhile:
       WHILE_
       {
         $<e3d>$.ini = si;
@@ -306,6 +325,7 @@ instruccionDoWhile:
       {
         if($6.tipo != T_LOGICO) yyerror("La expresion en el do while no es de tipo logico");
         
+        // LO COMENTADO ES LO QUE HABIA ANTES
         //$<cte>$ = creaLans(si);
         //emite(EIGUAL, crArgPos($6.pos), crArgEnt(0), crArgNul());
       }
@@ -359,10 +379,10 @@ expresionOpcional:
         $$.tipo = $1.tipo;
         $$.pos = $1.pos;
       }
-      | ID_ IGU_ expresion
+      | ID_ operadorAsignacion expresion
       {
-        SIMB simb= obtenerTDS($1);
-        if($3.tipo != simb.tipo) {
+        SIMB sim = obtenerTDS($1);
+        if($3.tipo != sim.tipo) {
           yyerror("tipo diferente en asignacion");      
         } else if ($3.tipo == T_ERROR) {
           $$.tipo == T_ERROR;
@@ -371,7 +391,12 @@ expresionOpcional:
           $$.pos = $3.pos;
         }
         
-        emite(EASIG, crArgPos($3.pos), crArgNul(), crArgPos(simb.desp));
+        if($2 == OPIGU)
+          emite(EASIG, crArgPos($3.pos), crArgNul(), crArgPos(sim.desp));
+        else if($2 == OPSUMIGU)
+          emite(ESUM, crArgPos(sim.desp), crArgPos($3.pos), crArgPos($$.pos));
+        else
+          emite(EDIF, crArgPos(sim.desp), crArgPos($3.pos), crArgPos($$.pos));
       }
       ;
 /*****************************************************************************/
@@ -507,8 +532,10 @@ expresionAditiva: expresionMultiplicativa
         $$.pos = creaVarTemp();
         if($2 == OPSUMA)
           emite(ESUM, crArgPos($1.pos), crArgPos($3.pos), crArgPos($$.pos));
-        else
+        else if($2 == OPRESTA)
           emite(EDIF, crArgPos($1.pos), crArgPos($3.pos), crArgPos($$.pos));
+        else
+          emite(RESTO, crArgPos($1.pos), crArgPos($3.pos), crArgPos($$.pos));
       }
       ;
 /*****************************************************************************/
@@ -672,6 +699,7 @@ expresionSufija: ID_
       | CTE_
       {
         $$.tipo = T_ENTERO;
+
         $$.pos = creaVarTemp();
         emite(EASIG, crArgEnt($1), crArgNul(), crArgPos($$.pos));
       }
@@ -695,7 +723,11 @@ expresionSufija: ID_
 
 
 /*****************************************************************************/
-operadorAsignacion: MASIGU_
+operadorAsignacion: IGU_
+      {
+        $$ = OPIGU;
+      }
+      | MASIGU_
       {
         $$ = OPSUMIGU;
       }
@@ -766,6 +798,10 @@ operadorAditivo: MAS_
       | MENOS_
       {
         $$ = OPRESTA;
+      }
+      | MOD_
+      {
+        $$ = OPMOD;
       }
       ;
 /*****************************************************************************/

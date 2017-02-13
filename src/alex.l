@@ -20,6 +20,8 @@ comentario "//"[^\n]*"\n"
 if              {ECHO; return(IF_);}
 else            {ECHO; return(ELSE_);}
 for             {ECHO; return(FOR_);}
+sfor			{ECHO; return(SFOR_);}
+until			{ECHO; return(UNTIL_);}
 read            {ECHO; return(READ_);}
 print           {ECHO; return(PRINT_);}
 true            {ECHO; return(TRUE_);}

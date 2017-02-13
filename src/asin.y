@@ -26,7 +26,7 @@
 %token BOOL_ INT_ STRUCT_
 %token FOR_ IF_ ELSE_
 %token READ_ PRINT_
-
+%token SFOR_ UNTIL_
 %token<cent> CTE_
 %token<ident> ID_
 
@@ -163,6 +163,7 @@ instruccion: ALLA_ listaInstrucciones CLLA_
       | instruccionEntradaSalida
       | instruccionSeleccion
       | instruccionIteracion
+      | instruccionSfor
       ;
 /*****************************************************************************/
 
@@ -265,8 +266,26 @@ instruccionSeleccion: IF_ APAR_ expresion CPAR_
       ;
 /*****************************************************************************/
 
-
-
+instruccionSfor: SFOR_ ID_{
+ 			SIMB simb = obtenerTDS($2);
+			if(simb.tipo != T_ENTERO)
+			yyerror("Identificador sfor no entero");
+		} UNTIL_ expresion{
+			if($5.tipo != T_ENTERO)
+				yyerror("Expresion sfor incorrectos");
+			SIMB simb = obtenerTDS($2);
+			$<e3d>$.ini = si;
+			$<e3d>$.fin = creaLans(si);
+			//emite(EMAY,crArgPos(simb.desp),crArgEnt(100),crArgEtq(-1));			
+			emite(EMAY,crArgPos(simb.desp),crArgPos($5.pos),crArgEtq(-1));
+		} instruccion 
+	  {
+		SIMB simb = obtenerTDS($2);
+		emite(ESUM, crArgPos(simb.desp), crArgEnt(1),crArgPos(simb.desp));
+		emite(GOTOS,crArgNul(),crArgNul(),crArgEtq($<e3d>6.ini));
+		completaLans($<e3d>6.fin, crArgEtq(si));
+	  }
+	  ;
 /*****************************************************************************/
 instruccionIteracion: FOR_ APAR_ expresionOpcional PCOMA_ 
       {

@@ -27,6 +27,14 @@ print           {ECHO; return(PRINT_);}
 true            {ECHO; return(TRUE_);}
 false           {ECHO; return(FALSE_);}
 
+
+do              {ECHO; return(DO_);}
+while           {ECHO; return(WHILE_);}
+"+="            {ECHO; return(MASIGU_);}
+"-="            {ECHO; return(MENOSIGU_);}
+"%"             {ECHO; return(MOD_);}
+
+
 "int"           {ECHO; return(INT_);}
 "bool"          {ECHO; return(BOOL_);}
 "struct"        {ECHO; return(STRUCT_);}

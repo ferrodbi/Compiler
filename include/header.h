@@ -35,6 +35,10 @@ extern int numErrores;              /* Contador del numero de errores        */
 #define OPNOT    14
 #define OPMASMAS 15
 #define OPMENMEN 16
+#define OPSUMIGU 17
+#define OPRESIGU 18
+#define OPIGU    19
+#define OPMOD    20
 /******************************** Constantes para el tipo de instrucciones 3D*/
 #define ARG_ENTERO 0
 #define ARG_POSICION 1
